@@ -1,29 +1,34 @@
 'use client';
 
-import { useState } from 'react';
-import { analyzePortfolio, getApiKey, saveApiKey, removeApiKey } from '../utils/llmService';
+import { useState, useEffect } from 'react';
+import { analyzePortfolio, getActiveProvider, getProviderApiKey } from '../utils/llmService';
+import { getProvider } from '../utils/llmProviders';
+import LLMProviderSettings from './LLMProviderSettings';
 
 export default function AIRecommendations({ holdings, metrics }) {
-    const [apiKey, setApiKey] = useState('');
-    const [hasApiKey, setHasApiKey] = useState(!!getApiKey());
+    const [hasApiKey, setHasApiKey] = useState(false);
+    const [activeProvider, setActiveProviderState] = useState(null);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [analysis, setAnalysis] = useState(null);
     const [error, setError] = useState(null);
-    const [showApiKeyInput, setShowApiKeyInput] = useState(false);
+    const [showSettings, setShowSettings] = useState(false);
 
-    const handleSaveApiKey = () => {
-        if (apiKey.trim()) {
-            saveApiKey(apiKey.trim());
-            setHasApiKey(true);
-            setShowApiKeyInput(false);
-            setApiKey('');
-        }
+    useEffect(() => {
+        checkApiKey();
+    }, []);
+
+    const checkApiKey = () => {
+        const providerId = getActiveProvider();
+        const apiKey = getProviderApiKey(providerId);
+        const provider = getProvider(providerId);
+
+        setHasApiKey(!!apiKey);
+        setActiveProviderState(provider);
     };
 
-    const handleRemoveApiKey = () => {
-        removeApiKey();
-        setHasApiKey(false);
-        setAnalysis(null);
+    const handleSettingsClose = () => {
+        setShowSettings(false);
+        checkApiKey(); // Refresh API key status
     };
 
     const handleAnalyze = async () => {
@@ -54,6 +59,9 @@ export default function AIRecommendations({ holdings, metrics }) {
 
     return (
         <div className="grid gap-3">
+            {/* Settings Modal */}
+            {showSettings && <LLMProviderSettings onClose={handleSettingsClose} />}
+
             {/* API Key Configuration */}
             {!hasApiKey ? (
                 <div className="glass-card p-4">
@@ -75,56 +83,33 @@ export default function AIRecommendations({ holdings, metrics }) {
                         </div>
                         <h3 style={{ marginBottom: '12px' }}>AI-Powered Portfolio Analysis</h3>
                         <p style={{ color: 'var(--text-secondary)', marginBottom: '32px', maxWidth: '600px', margin: '0 auto 32px' }}>
-                            Get personalized investment recommendations powered by GPT-4. Receive buy/sell/hold
+                            Get personalized investment recommendations powered by leading AI models.
+                            Choose from OpenAI, Groq, Anthropic, or Google to receive buy/sell/hold
                             suggestions, risk analysis, and rebalancing strategies tailored to your portfolio.
                         </p>
 
-                        {!showApiKeyInput ? (
-                            <button onClick={() => setShowApiKeyInput(true)} className="btn btn-primary">
-                                Configure OpenAI API Key
-                            </button>
-                        ) : (
-                            <div style={{ maxWidth: '500px', margin: '0 auto' }}>
-                                <div
-                                    style={{
-                                        padding: '24px',
-                                        background: 'rgba(255, 255, 255, 0.03)',
-                                        borderRadius: 'var(--radius-md)',
-                                        border: '1px solid var(--glass-border)',
-                                    }}
-                                >
-                                    <h4 style={{ marginBottom: '16px' }}>Enter Your OpenAI API Key</h4>
-                                    <input
-                                        type="password"
-                                        className="input"
-                                        placeholder="sk-..."
-                                        value={apiKey}
-                                        onChange={(e) => setApiKey(e.target.value)}
-                                        style={{ marginBottom: '16px' }}
-                                    />
-                                    <div className="flex gap-2">
-                                        <button onClick={handleSaveApiKey} className="btn btn-primary" style={{ flex: 1 }}>
-                                            Save API Key
-                                        </button>
-                                        <button onClick={() => setShowApiKeyInput(false)} className="btn btn-secondary">
-                                            Cancel
-                                        </button>
-                                    </div>
-                                    <p style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginTop: '12px' }}>
-                                        Your API key is stored locally in your browser and never sent to our servers.
-                                        Get your key at{' '}
-                                        <a
-                                            href="https://platform.openai.com/api-keys"
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            style={{ color: 'var(--primary-purple)' }}
-                                        >
-                                            platform.openai.com
-                                        </a>
-                                    </p>
-                                </div>
+                        <button onClick={() => setShowSettings(true)} className="btn btn-primary">
+                            ⚙️ Configure AI Provider
+                        </button>
+
+                        <div style={{ marginTop: '32px', display: 'flex', justifyContent: 'center', gap: '24px', flexWrap: 'wrap' }}>
+                            <div style={{ textAlign: 'center' }}>
+                                <div style={{ fontSize: '1.5rem', marginBottom: '4px' }}>🤖</div>
+                                <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>OpenAI</div>
                             </div>
-                        )}
+                            <div style={{ textAlign: 'center' }}>
+                                <div style={{ fontSize: '1.5rem', marginBottom: '4px' }}>⚡</div>
+                                <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>Groq</div>
+                            </div>
+                            <div style={{ textAlign: 'center' }}>
+                                <div style={{ fontSize: '1.5rem', marginBottom: '4px' }}>🧠</div>
+                                <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>Anthropic</div>
+                            </div>
+                            <div style={{ textAlign: 'center' }}>
+                                <div style={{ fontSize: '1.5rem', marginBottom: '4px' }}>🔍</div>
+                                <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>Google</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             ) : (
@@ -134,11 +119,22 @@ export default function AIRecommendations({ holdings, metrics }) {
                         <div className="flex justify-between items-center">
                             <div>
                                 <h3 style={{ marginBottom: '8px' }}>AI Portfolio Analysis</h3>
-                                <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+                                <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginBottom: '8px' }}>
                                     Get personalized recommendations based on your holdings and market conditions
                                 </p>
+                                {activeProvider && (
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <span style={{ fontSize: '1rem' }}>{activeProvider.icon}</span>
+                                        <span style={{ fontSize: '0.875rem', color: 'var(--text-tertiary)' }}>
+                                            Using {activeProvider.name}
+                                        </span>
+                                    </div>
+                                )}
                             </div>
                             <div className="flex gap-2">
+                                <button onClick={() => setShowSettings(true)} className="btn btn-secondary">
+                                    ⚙️ Settings
+                                </button>
                                 {analysis && (
                                     <button onClick={handleExport} className="btn btn-secondary">
                                         <svg
@@ -187,9 +183,6 @@ export default function AIRecommendations({ holdings, metrics }) {
                                             Generate Recommendations
                                         </>
                                     )}
-                                </button>
-                                <button onClick={handleRemoveApiKey} className="btn btn-secondary">
-                                    Remove API Key
                                 </button>
                             </div>
                         </div>

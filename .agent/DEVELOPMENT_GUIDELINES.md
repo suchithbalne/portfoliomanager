@@ -1,5 +1,103 @@
 # Portfolio Manager - Agent Development Guidelines
 
+## ⚠️ CRITICAL: Sensitive Data Handling
+
+### **NEVER SHARE PORTFOLIO DATA WITH LLMs WITHOUT EXPLICIT USER CONSENT**
+
+This application handles highly sensitive financial data. All developers and AI agents MUST follow these protocols:
+
+#### 🚨 Prohibited Actions
+
+1. **NEVER** send portfolio holdings, symbols, quantities, or account details to any LLM or external API without explicit user consent
+2. **NEVER** log sensitive portfolio data to console, files, or analytics services
+3. **NEVER** include portfolio data in error messages that might be transmitted externally
+4. **NEVER** store portfolio data on any server or cloud service
+5. **NEVER** use portfolio data for training, analytics, or any purpose other than user-requested features
+
+#### ✅ Required Practices
+
+1. **Data Anonymization**: When LLM features are used, anonymize all data:
+   ```javascript
+   // ✅ GOOD: Anonymized data for LLM
+   const anonymizedData = {
+     totalValue: 100000,
+     assetTypes: { stocks: 70, etfs: 20, crypto: 10 },
+     riskScore: 65,
+     // NO symbols, quantities, or identifying information
+   };
+   
+   // ❌ BAD: Sending raw portfolio data
+   const rawData = {
+     holdings: [
+       { symbol: 'AAPL', quantity: 100, value: 15000 },
+       // This is FORBIDDEN without consent
+     ]
+   };
+   ```
+
+2. **Explicit Consent**: Before any LLM API call:
+   ```javascript
+   // Show user exactly what data will be sent
+   // Require checkbox confirmation
+   // Provide option to use aggregated data only
+   ```
+
+3. **Client-Side Only**: All processing must happen in the browser:
+   ```javascript
+   // ✅ GOOD: Client-side processing
+   const metrics = calculateMetrics(holdings); // Runs in browser
+   
+   // ❌ BAD: Server-side processing
+   fetch('/api/calculate', { body: holdings }); // FORBIDDEN
+   ```
+
+4. **Secure Storage**: Use only browser localStorage:
+   ```javascript
+   // ✅ GOOD: Local storage only
+   localStorage.setItem('portfolios', JSON.stringify(portfolios));
+   
+   // ❌ BAD: External storage
+   await saveToCloud(portfolios); // FORBIDDEN
+   ```
+
+#### 🔒 Data Classification
+
+| Data Type | Sensitivity | Storage | LLM Sharing |
+|-----------|-------------|---------|-------------|
+| Holdings (symbols, quantities) | **CRITICAL** | localStorage only | ❌ Never (unless anonymized + consent) |
+| Account numbers | **CRITICAL** | ❌ Never store | ❌ Never |
+| Portfolio values | **HIGH** | localStorage only | ⚠️ Aggregated only with consent |
+| Calculated metrics | **MEDIUM** | localStorage only | ✅ With consent |
+| Asset allocation % | **LOW** | localStorage only | ✅ With consent |
+| UI preferences | **LOW** | localStorage only | ✅ OK |
+
+#### 📋 Pre-Deployment Checklist
+
+Before committing any code that touches portfolio data:
+
+- [ ] No portfolio data sent to external APIs (except OpenAI with consent)
+- [ ] No sensitive data in console.log statements
+- [ ] No portfolio data in error messages
+- [ ] All LLM calls have explicit consent flow
+- [ ] Data anonymization implemented correctly
+- [ ] No hardcoded API keys or credentials
+- [ ] LocalStorage is the only storage mechanism
+- [ ] No analytics/tracking of portfolio data
+
+#### 🛡️ Security Audit Questions
+
+Ask yourself before committing:
+
+1. **Could this code leak portfolio data?**
+2. **Does this send data to any external service?**
+3. **Are error messages sanitized?**
+4. **Is user consent obtained before LLM calls?**
+5. **Is data properly anonymized?**
+
+If you answer "yes" to #1-2 or "no" to #3-5, **DO NOT COMMIT**.
+
+---
+
 ## Overview
 
 This document defines the coding standards, security protocols, and best practices for developing and maintaining the Portfolio Manager application. All AI agents and developers working on this codebase must adhere to these guidelines.

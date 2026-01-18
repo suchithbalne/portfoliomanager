@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { usePortfolio } from '../context/PortfolioContext';
+import PortfolioSelector from './PortfolioSelector';
 import HoldingsTable from './HoldingsTable';
 import AllocationChart from './AllocationChart';
 import PerformanceMetrics from './PerformanceMetrics';
@@ -13,7 +14,7 @@ import AIRecommendations from './AIRecommendations';
 import * as calc from '../utils/portfolioCalculations';
 
 export default function Dashboard() {
-    const { holdings, portfolioName, clearPortfolio } = usePortfolio();
+    const { holdings, activePortfolio, viewMode, clearAllPortfolios, getPortfolioBreakdown } = usePortfolio();
     const [activeTab, setActiveTab] = useState('overview');
 
     // Calculate all metrics
@@ -47,29 +48,58 @@ export default function Dashboard() {
         <div className="container" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
             {/* Header */}
             <div className="flex justify-between items-center mb-4 animate-fade-in">
-                <div>
-                    <h1 style={{ marginBottom: '8px' }}>{portfolioName}</h1>
+                <div style={{ flex: 1 }}>
+                    <h1 style={{ marginBottom: '8px' }}>Portfolio Dashboard</h1>
                     <p style={{ color: 'var(--text-secondary)' }}>
                         {holdings.length} holdings • Last updated: {new Date().toLocaleDateString()}
                     </p>
                 </div>
-                <button onClick={clearPortfolio} className="btn btn-secondary">
-                    <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                    >
-                        <polyline points="1 4 1 10 7 10" />
-                        <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
-                    </svg>
-                    New Portfolio
-                </button>
+
+                <div className="flex gap-2 items-center">
+                    <PortfolioSelector />
+                    <button onClick={clearAllPortfolios} className="btn btn-secondary">
+                        <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        >
+                            <polyline points="1 4 1 10 7 10" />
+                            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+                        </svg>
+                        New Portfolio
+                    </button>
+                </div>
             </div>
+
+            {/* View Mode Indicator */}
+            {viewMode === 'consolidated' && (
+                <div
+                    className="glass-card animate-fade-in"
+                    style={{
+                        padding: '16px',
+                        marginBottom: '16px',
+                        background: 'rgba(139, 92, 246, 0.1)',
+                        border: '1px solid var(--primary-purple)',
+                    }}
+                >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <span style={{ fontSize: '1.5rem' }}>📊</span>
+                        <div style={{ flex: 1 }}>
+                            <h4 style={{ marginBottom: '4px', color: 'var(--primary-purple)' }}>
+                                Consolidated View
+                            </h4>
+                            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', margin: 0 }}>
+                                Viewing combined data from all portfolios
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Summary Cards */}
             <div className="grid grid-cols-4 gap-3 mb-4 animate-fade-in" style={{ animationDelay: '0.1s' }}>
@@ -135,6 +165,51 @@ export default function Dashboard() {
                 </div>
             </div>
 
+            {/* Portfolio Breakdown (Consolidated View Only) */}
+            {viewMode === 'consolidated' && (
+                <div className="glass-card p-4 mb-4 animate-fade-in" style={{ animationDelay: '0.15s' }}>
+                    <h3 style={{ marginBottom: '16px' }}>Portfolio Breakdown</h3>
+                    <div className="grid gap-2">
+                        {getPortfolioBreakdown().map(portfolio => (
+                            <div
+                                key={portfolio.id}
+                                style={{
+                                    padding: '12px',
+                                    background: 'rgba(255, 255, 255, 0.03)',
+                                    borderRadius: 'var(--radius-sm)',
+                                    border: '1px solid var(--glass-border)',
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <div>
+                                    <div style={{ fontWeight: '600', color: 'var(--text-primary)' }}>
+                                        {portfolio.name}
+                                    </div>
+                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
+                                        {portfolio.accountType} • {portfolio.holdingsCount} holdings
+                                    </div>
+                                </div>
+                                <div style={{ textAlign: 'right' }}>
+                                    <div style={{ fontWeight: '600', color: 'var(--text-primary)' }}>
+                                        {calc.formatCurrency(portfolio.totalValue)}
+                                    </div>
+                                    <div
+                                        style={{
+                                            fontSize: '0.875rem',
+                                            color: portfolio.gainLoss >= 0 ? 'var(--success)' : 'var(--error)',
+                                        }}
+                                    >
+                                        {calc.formatCurrency(portfolio.gainLoss)} ({calc.formatPercentage(portfolio.gainLossPercent)})
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             {/* Tabs */}
             <div
                 className="glass-card animate-fade-in"
@@ -173,7 +248,10 @@ export default function Dashboard() {
                         <PerformanceMetrics holdings={holdings} metrics={metrics} />
                         <div className="grid grid-cols-2 gap-3">
                             <AllocationChart holdings={holdings} metrics={metrics} />
-                            <HoldingsTable holdings={holdings.slice(0, 10)} showAll={false} />
+                            <HoldingsTable
+                                holdings={[...holdings].sort((a, b) => b.marketValue - a.marketValue).slice(0, 10)}
+                                showAll={false}
+                            />
                         </div>
                     </div>
                 )}

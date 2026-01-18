@@ -4,19 +4,44 @@ import { useState } from 'react';
 import { usePortfolio } from '../context/PortfolioContext';
 import { parsePortfolioFile } from '../utils/fileParser';
 
+const ACCOUNT_TYPES = [
+    'Taxable Brokerage',
+    'Traditional IRA',
+    'Roth IRA',
+    '401(k)',
+    'Roth 401(k)',
+    'SEP IRA',
+    'Simple IRA',
+    'HSA',
+    '529 Plan',
+    'Trust Account',
+    'Other'
+];
+
 export default function FileUpload() {
-    const { importHoldings } = usePortfolio();
+    const { addPortfolio, portfolios } = usePortfolio();
     const [isDragging, setIsDragging] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [portfolioName, setPortfolioName] = useState('');
+    const [accountType, setAccountType] = useState('Taxable Brokerage');
 
     const handleFile = async (file) => {
+        if (!portfolioName.trim()) {
+            setError('Please enter a portfolio name');
+            return;
+        }
+
         setIsLoading(true);
         setError(null);
 
         try {
             const data = await parsePortfolioFile(file);
-            importHoldings(data);
+            addPortfolio(portfolioName.trim(), accountType, data);
+
+            // Reset form
+            setPortfolioName('');
+            setAccountType('Taxable Brokerage');
         } catch (err) {
             setError(err.message);
         } finally {
@@ -54,12 +79,51 @@ export default function FileUpload() {
         <div className="container" style={{ paddingTop: '80px', paddingBottom: '80px' }}>
             <div className="animate-fade-in" style={{ maxWidth: '800px', margin: '0 auto' }}>
                 <div className="text-center mb-4">
-                    <h1 style={{ marginBottom: '16px' }}>Portfolio Manager</h1>
+                    <h1 style={{ marginBottom: '16px' }}>
+                        {portfolios.length === 0 ? 'Portfolio Manager' : 'Add Portfolio'}
+                    </h1>
                     <p style={{ fontSize: '1.125rem', color: 'var(--text-secondary)' }}>
-                        Import your portfolio from Fidelity, Robinhood, or any broker to get started
+                        {portfolios.length === 0
+                            ? 'Import your portfolio from Fidelity, Robinhood, or any broker to get started'
+                            : 'Add another portfolio to track multiple accounts'}
                     </p>
                 </div>
 
+                {/* Portfolio Name and Account Type Inputs */}
+                <div className="glass-card" style={{ padding: '24px', marginBottom: '24px' }}>
+                    <h3 style={{ marginBottom: '16px' }}>Portfolio Details</h3>
+                    <div className="grid gap-3">
+                        <div>
+                            <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+                                Portfolio Name *
+                            </label>
+                            <input
+                                type="text"
+                                className="input"
+                                placeholder="e.g., Fidelity Brokerage, Vanguard IRA"
+                                value={portfolioName}
+                                onChange={(e) => setPortfolioName(e.target.value)}
+                            />
+                        </div>
+                        <div>
+                            <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+                                Account Type
+                            </label>
+                            <select
+                                className="input"
+                                value={accountType}
+                                onChange={(e) => setAccountType(e.target.value)}
+                                style={{ cursor: 'pointer' }}
+                            >
+                                {ACCOUNT_TYPES.map(type => (
+                                    <option key={type} value={type}>{type}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                {/* File Upload Area */}
                 <div
                     className={`glass-card ${isDragging ? 'dragging' : ''}`}
                     onDrop={handleDrop}
@@ -160,7 +224,35 @@ export default function FileUpload() {
                     )}
                 </div>
 
-                <div className="glass-card" style={{ marginTop: '48px', padding: '24px' }}>
+                {/* Existing Portfolios List */}
+                {portfolios.length > 0 && (
+                    <div className="glass-card" style={{ marginTop: '24px', padding: '24px' }}>
+                        <h4 style={{ marginBottom: '16px' }}>Your Portfolios ({portfolios.length})</h4>
+                        <div className="grid gap-2">
+                            {portfolios.map(portfolio => (
+                                <div
+                                    key={portfolio.id}
+                                    style={{
+                                        padding: '12px',
+                                        background: 'rgba(255, 255, 255, 0.03)',
+                                        borderRadius: 'var(--radius-sm)',
+                                        border: '1px solid var(--glass-border)',
+                                    }}
+                                >
+                                    <div style={{ fontWeight: '600', color: 'var(--text-primary)' }}>
+                                        {portfolio.name}
+                                    </div>
+                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
+                                        {portfolio.accountType} • {portfolio.holdings.length} holdings
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Broker Instructions */}
+                <div className="glass-card" style={{ marginTop: '24px', padding: '24px' }}>
                     <h4 style={{ marginBottom: '16px' }}>How to export from your broker:</h4>
                     <div className="grid grid-cols-2 gap-3">
                         <div>

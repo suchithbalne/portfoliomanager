@@ -13,13 +13,16 @@ export default function PortfolioSelector() {
         toggleViewMode,
         getPortfolioBreakdown,
         deletePortfolio,
-        updatePortfolio
+        updatePortfolio,
+        addPortfolio
     } = usePortfolio();
 
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [editName, setEditName] = useState('');
     const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [newPortfolioName, setNewPortfolioName] = useState('');
 
     const activePortfolio = portfolios.find(p => p.id === activePortfolioId);
     const breakdown = getPortfolioBreakdown();
@@ -41,6 +44,25 @@ export default function PortfolioSelector() {
 
     const cancelDelete = () => {
         setDeleteConfirmId(null);
+    };
+
+    const handleCreatePortfolio = () => {
+        setShowCreateModal(true);
+    };
+
+    const confirmCreatePortfolio = () => {
+        if (newPortfolioName.trim()) {
+            // Create new portfolio with empty holdings
+            addPortfolio(newPortfolioName.trim(), 'taxable', []);
+            setShowCreateModal(false);
+            setNewPortfolioName('');
+            setIsSidebarOpen(false);
+        }
+    };
+
+    const cancelCreatePortfolio = () => {
+        setShowCreateModal(false);
+        setNewPortfolioName('');
     };
 
     const handleSaveEdit = (portfolioId) => {
@@ -152,6 +174,27 @@ export default function PortfolioSelector() {
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', margin: 0 }}>
                         Manage and switch between your portfolios
                     </p>
+                </div>
+
+                {/* Create Portfolio Button */}
+                <div style={{ padding: '0 16px 16px 16px' }}>
+                    <button
+                        onClick={handleCreatePortfolio}
+                        className="btn btn-primary"
+                        style={{
+                            width: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '8px',
+                        }}
+                    >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <line x1="12" y1="5" x2="12" y2="19" />
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                        </svg>
+                        Create Portfolio
+                    </button>
                 </div>
 
                 {/* Sidebar Content */}
@@ -466,6 +509,102 @@ export default function PortfolioSelector() {
                                 }}
                             >
                                 Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Create Portfolio Modal */}
+            {showCreateModal && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: 'rgba(0, 0, 0, 0.7)',
+                        backdropFilter: 'blur(8px)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 9999,
+                        animation: 'fadeIn 0.2s ease-out',
+                    }}
+                    onClick={cancelCreatePortfolio}
+                >
+                    <div
+                        className="glass-card"
+                        style={{
+                            maxWidth: '420px',
+                            width: '90%',
+                            padding: '32px',
+                            animation: 'slideUp 0.3s ease-out',
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+                            <div
+                                style={{
+                                    width: '64px',
+                                    height: '64px',
+                                    margin: '0 auto 16px',
+                                    background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%)',
+                                    border: '2px solid var(--primary-purple)',
+                                    borderRadius: '50%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '2rem',
+                                }}
+                            >
+                                📁
+                            </div>
+                            <h3 style={{ marginBottom: '8px', color: 'var(--text-primary)' }}>
+                                Create New Portfolio
+                            </h3>
+                            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.5' }}>
+                                Enter a name for your new portfolio
+                            </p>
+                        </div>
+
+                        <div style={{ marginBottom: '24px' }}>
+                            <input
+                                type="text"
+                                className="input"
+                                placeholder="e.g., Tech Stocks, Dividend Portfolio"
+                                value={newPortfolioName}
+                                onChange={(e) => setNewPortfolioName(e.target.value)}
+                                onKeyPress={(e) => {
+                                    if (e.key === 'Enter') {
+                                        confirmCreatePortfolio();
+                                    }
+                                }}
+                                autoFocus
+                                style={{
+                                    width: '100%',
+                                    padding: '12px 16px',
+                                    fontSize: '1rem',
+                                }}
+                            />
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '12px' }}>
+                            <button
+                                onClick={cancelCreatePortfolio}
+                                className="btn btn-secondary"
+                                style={{ flex: 1 }}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={confirmCreatePortfolio}
+                                className="btn btn-primary"
+                                style={{ flex: 1 }}
+                                disabled={!newPortfolioName.trim()}
+                            >
+                                Create
                             </button>
                         </div>
                     </div>

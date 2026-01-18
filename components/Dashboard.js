@@ -10,11 +10,12 @@ import DiversificationAnalysis from './DiversificationAnalysis';
 import RiskMetrics from './RiskMetrics';
 import TaxOptimization from './TaxOptimization';
 import AIRecommendations from './AIRecommendations';
+import FileUpload from './FileUpload';
 import * as calc from '../utils/portfolioCalculations';
 import * as advCalc from '../utils/advancedCalculations';
 
 export default function Dashboard() {
-    const { holdings, activePortfolio, viewMode, clearAllPortfolios, getPortfolioBreakdown } = usePortfolio();
+    const { holdings, activePortfolio, viewMode, clearAllPortfolios, getPortfolioBreakdown, portfolios } = usePortfolio();
     const [activeTab, setActiveTab] = useState('overview');
 
     // Calculate advanced metrics
@@ -63,6 +64,96 @@ export default function Dashboard() {
         { id: 'ai', label: 'AI Recommendations' },
     ];
 
+    // Welcome screen for first-time users (no portfolios at all)
+    if (portfolios.length === 0) {
+        return (
+            <div className="container" style={{ paddingTop: '80px', paddingBottom: '80px' }}>
+                <div className="animate-fade-in" style={{ maxWidth: '900px', margin: '0 auto', textAlign: 'center' }}>
+                    <div style={{ marginBottom: '48px' }}>
+                        <div
+                            style={{
+                                width: '120px',
+                                height: '120px',
+                                margin: '0 auto 32px',
+                                background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%)',
+                                border: '3px solid var(--primary-purple)',
+                                borderRadius: '50%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: '4rem',
+                            }}
+                        >
+                            📊
+                        </div>
+                        <h1 style={{ marginBottom: '16px', fontSize: '2.5rem' }}>Welcome to Portfolio Manager</h1>
+                        <p style={{ fontSize: '1.25rem', color: 'var(--text-secondary)', maxWidth: '600px', margin: '0 auto' }}>
+                            Track, analyze, and optimize your investment portfolio with AI-powered insights
+                        </p>
+                    </div>
+
+                    <div className="grid gap-4" style={{ maxWidth: '800px', margin: '0 auto' }}>
+                        <div className="glass-card" style={{ padding: '32px', textAlign: 'left' }}>
+                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '20px' }}>
+                                <div
+                                    style={{
+                                        width: '48px',
+                                        height: '48px',
+                                        background: 'linear-gradient(135deg, var(--primary-purple), var(--primary-blue))',
+                                        borderRadius: '12px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: '1.5rem',
+                                        flexShrink: 0,
+                                    }}
+                                >
+                                    📁
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    <h3 style={{ marginBottom: '8px' }}>Import from Your Broker</h3>
+                                    <p style={{ color: 'var(--text-secondary)', marginBottom: '16px', lineHeight: '1.6' }}>
+                                        Upload CSV or Excel files from Fidelity, Robinhood, Vanguard, or any broker.
+                                        We'll automatically parse your holdings and calculate comprehensive metrics.
+                                    </p>
+                                    <FileUpload />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="glass-card" style={{ padding: '24px', textAlign: 'center' }}>
+                            <p style={{ color: 'var(--text-tertiary)', fontSize: '0.875rem' }}>
+                                Or start with an empty portfolio and add holdings manually later
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Show FileUpload component for empty portfolios, but keep navigation visible
+    if (holdings.length === 0) {
+        return (
+            <div className="container" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
+                <div className="animate-fade-in" style={{ marginBottom: '32px' }}>
+                    <div style={{ marginBottom: '24px', maxWidth: '300px' }}>
+                        <PortfolioSelector />
+                    </div>
+
+                    <div className="text-center" style={{ marginBottom: '32px' }}>
+                        <h1 style={{ marginBottom: '8px' }}>Add Holdings to {activePortfolio?.name}</h1>
+                        <p style={{ color: 'var(--text-secondary)' }}>
+                            This portfolio is empty. Import a file or switch to another portfolio.
+                        </p>
+                    </div>
+                </div>
+
+                <FileUpload />
+            </div>
+        );
+    }
+
     return (
         <div className="container" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
             {/* Header Section */}
@@ -83,24 +174,7 @@ export default function Dashboard() {
                         </p>
                     </div>
 
-                    <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
-                        <button onClick={clearAllPortfolios} className="btn btn-secondary">
-                            <svg
-                                width="20"
-                                height="20"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            >
-                                <polyline points="1 4 1 10 7 10" />
-                                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
-                            </svg>
-                            New Portfolio
-                        </button>
-                    </div>
+
                 </div>
             </div>
 

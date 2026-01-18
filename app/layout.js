@@ -1,4 +1,5 @@
 import './globals.css';
+import Navbar from '../components/Navbar';
 
 export const metadata = {
   title: "Portfolio Manager - AI-Powered Investment Analysis",
@@ -8,7 +9,12 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <Navbar />
+        <div style={{ paddingTop: '80px' }}>
+          {children}
+        </div>
+      </body>
     </html>
   );
 }

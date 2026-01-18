@@ -239,6 +239,9 @@ export const PortfolioProvider = ({ children }) => {
         hasPortfolio: portfolios.length > 0,
         portfolioCount: portfolios.length,
 
+        // Portfolio data
+        portfolios,
+
         // Portfolio management
         addPortfolio,
         updatePortfolio,

@@ -43,11 +43,9 @@ export default function PerformanceMetrics({ holdings, metrics }) {
     ];
 
     return (
-        <div className="glass-card">
-            <div style={{ padding: '24px', borderBottom: '1px solid var(--glass-border)' }}>
-                <h3>Performance Metrics</h3>
-            </div>
-            <div className="grid grid-cols-3 gap-3" style={{ padding: '24px' }}>
+        <div className="dashboard-card">
+            <h3 className="card-header">Performance Metrics</h3>
+            <div className="grid grid-cols-3 gap-3">
                 {metricsData.map((metric, index) => (
                     <div
                         key={index}

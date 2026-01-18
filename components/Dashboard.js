@@ -107,9 +107,8 @@ export default function Dashboard() {
             {/* View Mode Indicator */}
             {viewMode === 'consolidated' && (
                 <div
-                    className="glass-card animate-fade-in"
+                    className="dashboard-card animate-fade-in"
                     style={{
-                        padding: '16px',
                         marginBottom: '16px',
                         background: 'rgba(139, 92, 246, 0.1)',
                         border: '1px solid var(--primary-purple)',
@@ -131,7 +130,7 @@ export default function Dashboard() {
 
             {/* Summary Cards */}
             <div className="grid grid-cols-4 gap-3 mb-4 animate-fade-in" style={{ animationDelay: '0.1s' }}>
-                <div className="glass-card p-3">
+                <div className="dashboard-card">
                     <p style={{ color: 'var(--text-tertiary)', fontSize: '0.875rem', marginBottom: '8px' }}>
                         Total Value
                     </p>
@@ -141,7 +140,7 @@ export default function Dashboard() {
                     </p>
                 </div>
 
-                <div className="glass-card p-3">
+                <div className="dashboard-card">
                     <p style={{ color: 'var(--text-tertiary)', fontSize: '0.875rem', marginBottom: '8px' }}>
                         Total Gain/Loss
                     </p>
@@ -160,7 +159,7 @@ export default function Dashboard() {
                     </span>
                 </div>
 
-                <div className="glass-card p-3">
+                <div className="dashboard-card">
                     <p style={{ color: 'var(--text-tertiary)', fontSize: '0.875rem', marginBottom: '8px' }}>
                         Diversification
                     </p>
@@ -173,7 +172,7 @@ export default function Dashboard() {
                     </p>
                 </div>
 
-                <div className="glass-card p-3">
+                <div className="dashboard-card">
                     <p style={{ color: 'var(--text-tertiary)', fontSize: '0.875rem', marginBottom: '8px' }}>
                         Risk Score
                     </p>
@@ -195,8 +194,8 @@ export default function Dashboard() {
 
             {/* Portfolio Breakdown (Consolidated View Only) */}
             {viewMode === 'consolidated' && (
-                <div className="glass-card p-4 mb-4 animate-fade-in" style={{ animationDelay: '0.15s' }}>
-                    <h3 style={{ marginBottom: '16px' }}>Portfolio Breakdown</h3>
+                <div className="dashboard-card mb-4 animate-fade-in" style={{ animationDelay: '0.15s' }}>
+                    <h3 className="card-header">Portfolio Breakdown</h3>
                     <div className="grid gap-2">
                         {getPortfolioBreakdown().map(portfolio => (
                             <div
@@ -240,12 +239,14 @@ export default function Dashboard() {
 
             {/* Tabs */}
             <div
-                className="glass-card animate-fade-in"
+                className="dashboard-card animate-fade-in"
                 style={{
                     padding: '8px',
                     marginBottom: '24px',
                     animationDelay: '0.2s',
                     display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
                     gap: '8px',
                     overflowX: 'auto',
                 }}
@@ -271,10 +272,14 @@ export default function Dashboard() {
             {/* Tab Content */}
             <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
                 {activeTab === 'overview' && (
-                    <div className="grid gap-3">
-                        <PerformanceMetrics holdings={holdings} metrics={metrics} />
-                        <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-12 gap-6 animate-fade-in">
+                        <div className="col-span-12 md:col-span-8">
                             <AllocationChart holdings={holdings} metrics={metrics} />
+                        </div>
+                        <div className="col-span-12 md:col-span-4">
+                            <PerformanceMetrics holdings={holdings} metrics={metrics} />
+                        </div>
+                        <div className="col-span-12">
                             <HoldingsTable
                                 holdings={[...holdings].sort((a, b) => b.marketValue - a.marketValue).slice(0, 10)}
                                 showAll={false}

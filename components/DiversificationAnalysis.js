@@ -143,10 +143,10 @@ export default function DiversificationAnalysis({ holdings, metrics }) {
     return (
         <div className="grid gap-3">
             {/* Diversification Score Card */}
-            <div className="glass-card p-4">
+            <div className="dashboard-card">
                 <div className="flex justify-between items-center">
                     <div>
-                        <h3 style={{ marginBottom: '8px' }}>Diversification Score</h3>
+                        <h3 className="card-header">Diversification Score</h3>
                         <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
                             Based on asset types, sectors, and concentration
                         </p>
@@ -187,8 +187,8 @@ export default function DiversificationAnalysis({ holdings, metrics }) {
             </div>
 
             {/* Advanced Metrics */}
-            <div className="glass-card p-4">
-                <h3 style={{ marginBottom: '16px' }}>Advanced Diversification Metrics</h3>
+            <div className="dashboard-card">
+                <h3 className="card-header">Advanced Diversification Metrics</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     {advancedStats.map((stat, i) => (
                         <div key={i} style={{
@@ -218,9 +218,9 @@ export default function DiversificationAnalysis({ holdings, metrics }) {
             {/* Charts Grid */}
             <div className="grid grid-cols-2 gap-3">
                 {/* Asset Type Breakdown */}
-                <div className="glass-card">
-                    <div style={{ padding: '24px', borderBottom: '1px solid var(--glass-border)' }}>
-                        <h3>Asset Type Breakdown</h3>
+                <div className="dashboard-card">
+                    <div style={{ borderBottom: '1px solid var(--primary-purple)', paddingBottom: '12px', marginBottom: '16px' }}>
+                        <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)' }}>Asset Type Breakdown</h3>
                         <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginTop: '4px' }}>
                             {assetLabels.length} different asset types
                         </p>
@@ -231,9 +231,9 @@ export default function DiversificationAnalysis({ holdings, metrics }) {
                 </div>
 
                 {/* Sector Breakdown */}
-                <div className="glass-card">
-                    <div style={{ padding: '24px', borderBottom: '1px solid var(--glass-border)' }}>
-                        <h3>Sector Breakdown</h3>
+                <div className="dashboard-card">
+                    <div style={{ borderBottom: '1px solid var(--primary-purple)', paddingBottom: '12px', marginBottom: '16px' }}>
+                        <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)' }}>Sector Breakdown</h3>
                         <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginTop: '4px' }}>
                             {sectorLabels.length} different sectors
                         </p>
@@ -245,8 +245,8 @@ export default function DiversificationAnalysis({ holdings, metrics }) {
             </div>
 
             {/* Recommendations */}
-            <div className="glass-card p-4">
-                <h3 style={{ marginBottom: '16px' }}>Diversification Recommendations</h3>
+            <div className="dashboard-card">
+                <h3 className="card-header">Diversification Recommendations</h3>
                 <div className="grid grid-cols-2 gap-3">
                     {metrics.concentrationRisk > 50 && (
                         <div

@@ -106,14 +106,12 @@ export default function AllocationChart({ holdings, metrics }) {
     ChartJS.defaults.color = '#ffffff';
 
     return (
-        <div className="glass-card">
-            <div style={{ padding: '24px', borderBottom: '1px solid var(--glass-border)' }}>
-                <h3>Portfolio Allocation</h3>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginTop: '4px' }}>
-                    Distribution by holding
-                </p>
-            </div>
-            <div className="chart-container" style={{ height: '350px', padding: '20px' }}>
+        <div className="dashboard-card">
+            <h3 className="card-header">Portfolio Allocation</h3>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginBottom: '16px' }}>
+                Distribution by holding
+            </p>
+            <div className="chart-container" style={{ height: '350px', padding: '0' }}>
                 <Doughnut data={data} options={options} />
             </div>
         </div>

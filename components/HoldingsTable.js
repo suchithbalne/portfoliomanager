@@ -39,10 +39,8 @@ export default function HoldingsTable({ holdings, showAll = true }) {
     };
 
     return (
-        <div className="glass-card">
-            <div style={{ padding: '24px', borderBottom: '1px solid var(--glass-border)' }}>
-                <h3>{showAll ? 'All Holdings' : 'Top Holdings'}</h3>
-            </div>
+        <div className="dashboard-card">
+            <h3 className="card-header">{showAll ? 'All Holdings' : 'Top Holdings'}</h3>
 
             <div className="table-container">
                 <table>

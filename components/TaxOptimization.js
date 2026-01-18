@@ -15,7 +15,7 @@ export default function TaxOptimization({ holdings }) {
         <div className="grid gap-3">
             {/* Summary Cards */}
             <div className="grid grid-cols-3 gap-3">
-                <div className="glass-card p-3">
+                <div className="dashboard-card">
                     <p style={{ color: 'var(--text-tertiary)', fontSize: '0.875rem', marginBottom: '8px' }}>
                         Tax Loss Opportunities
                     </p>
@@ -27,7 +27,7 @@ export default function TaxOptimization({ holdings }) {
                     </p>
                 </div>
 
-                <div className="glass-card p-3">
+                <div className="dashboard-card">
                     <p style={{ color: 'var(--text-tertiary)', fontSize: '0.875rem', marginBottom: '8px' }}>
                         Short-Term Gains
                     </p>
@@ -44,7 +44,7 @@ export default function TaxOptimization({ holdings }) {
                     </p>
                 </div>
 
-                <div className="glass-card p-3">
+                <div className="dashboard-card">
                     <p style={{ color: 'var(--text-tertiary)', fontSize: '0.875rem', marginBottom: '8px' }}>
                         Long-Term Gains
                     </p>
@@ -64,13 +64,11 @@ export default function TaxOptimization({ holdings }) {
 
             {/* Tax Loss Harvesting Opportunities */}
             {taxLossOpportunities.length > 0 ? (
-                <div className="glass-card">
-                    <div style={{ padding: '24px', borderBottom: '1px solid var(--glass-border)' }}>
-                        <h3>Tax Loss Harvesting Opportunities</h3>
-                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginTop: '4px' }}>
-                            Sell these positions to offset capital gains
-                        </p>
-                    </div>
+                <div className="dashboard-card">
+                    <h3 className="card-header">Tax Loss Harvesting Opportunities</h3>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginBottom: '16px' }}>
+                        Sell these positions to offset capital gains
+                    </p>
                     <div className="table-container">
                         <table>
                             <thead>
@@ -105,7 +103,7 @@ export default function TaxOptimization({ holdings }) {
                     </div>
                 </div>
             ) : (
-                <div className="glass-card p-4">
+                <div className="dashboard-card">
                     <div className="text-center" style={{ padding: '40px' }}>
                         <h3 style={{ color: 'var(--success)', marginBottom: '12px' }}>
                             ✅ No Tax Loss Opportunities
@@ -118,8 +116,8 @@ export default function TaxOptimization({ holdings }) {
             )}
 
             {/* Gains Analysis */}
-            <div className="glass-card p-4">
-                <h3 style={{ marginBottom: '24px' }}>Capital Gains Analysis</h3>
+            <div className="dashboard-card">
+                <h3 className="card-header">Capital Gains Analysis</h3>
                 <div className="grid grid-cols-2 gap-3">
                     {/* Short-Term */}
                     <div
@@ -208,8 +206,8 @@ export default function TaxOptimization({ holdings }) {
             </div>
 
             {/* Tax Optimization Tips */}
-            <div className="glass-card p-4">
-                <h3 style={{ marginBottom: '16px' }}>Tax Optimization Strategies</h3>
+            <div className="dashboard-card">
+                <h3 className="card-header">Tax Optimization Strategies</h3>
                 <div className="grid gap-2">
                     <div
                         style={{

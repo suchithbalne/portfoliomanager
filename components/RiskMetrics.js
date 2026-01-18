@@ -86,10 +86,10 @@ export default function RiskMetrics({ holdings, metrics }) {
     return (
         <div className="grid gap-3">
             {/* Overall Risk Score */}
-            <div className="glass-card p-4">
+            <div className="dashboard-card">
                 <div className="flex justify-between items-center">
                     <div style={{ flex: 1 }}>
-                        <h3 style={{ marginBottom: '8px' }}>Overall Risk Assessment</h3>
+                        <h3 className="card-header">Overall Risk Assessment</h3>
                         <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginBottom: '24px' }}>
                             Comprehensive risk analysis based on multiple factors
                         </p>
@@ -182,8 +182,8 @@ export default function RiskMetrics({ holdings, metrics }) {
             </div>
 
             {/* Advanced Risk Analytics */}
-            <div className="glass-card p-4">
-                <h3 style={{ marginBottom: '16px' }}>Advanced Risk Analytics</h3>
+            <div className="dashboard-card">
+                <h3 className="card-header">Advanced Risk Analytics</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                     {advancedMetrics.map((metric, index) => (
                         <div key={index} style={{
@@ -211,8 +211,8 @@ export default function RiskMetrics({ holdings, metrics }) {
             </div>
 
             {/* Risk Factors Breakdown */}
-            <div className="glass-card p-4">
-                <h3 style={{ marginBottom: '24px' }}>Risk Factors Breakdown</h3>
+            <div className="dashboard-card">
+                <h3 className="card-header">Risk Factors Breakdown</h3>
                 <div className="grid gap-3">
                     {riskFactors.map((factor, index) => (
                         <div
@@ -261,8 +261,8 @@ export default function RiskMetrics({ holdings, metrics }) {
             </div>
 
             {/* Risk Mitigation Strategies */}
-            <div className="glass-card p-4">
-                <h3 style={{ marginBottom: '16px' }}>Risk Mitigation Strategies</h3>
+            <div className="dashboard-card">
+                <h3 className="card-header">Risk Mitigation Strategies</h3>
                 <div className="grid grid-cols-2 gap-3">
                     <div
                         style={{

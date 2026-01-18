@@ -3,85 +3,85 @@
  */
 
 export const formatMarkdownToHTML = (markdown) => {
-    if (!markdown) return '';
+  if (!markdown) return '';
 
-    let html = markdown;
+  let html = markdown;
 
-    // Escape HTML to prevent XSS
-    html = html.replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
+  // Escape HTML to prevent XSS
+  html = html.replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
 
-    // Headers (must be done before other replacements)
-    html = html.replace(/^# (.*$)/gim, '<h1 class="ai-h1">$1</h1>');
-    html = html.replace(/^## (.*$)/gim, '<h2 class="ai-h2">$1</h2>');
-    html = html.replace(/^### (.*$)/gim, '<h3 class="ai-h3">$1</h3>');
-    html = html.replace(/^#### (.*$)/gim, '<h4 class="ai-h4">$1</h4>');
+  // Headers (must be done before other replacements)
+  html = html.replace(/^# (.*$)/gim, '<h1 class="ai-h1">$1</h1>');
+  html = html.replace(/^## (.*$)/gim, '<h2 class="ai-h2">$1</h2>');
+  html = html.replace(/^### (.*$)/gim, '<h3 class="ai-h3">$1</h3>');
+  html = html.replace(/^#### (.*$)/gim, '<h4 class="ai-h4">$1</h4>');
 
-    // Bold text **text**
-    html = html.replace(/\*\*(.*?)\*\*/g, '<strong class="ai-bold">$1</strong>');
+  // Bold text **text**
+  html = html.replace(/\*\*(.*?)\*\*/g, '<strong class="ai-bold">$1</strong>');
 
-    // Italic text *text*
-    html = html.replace(/\*(.*?)\*/g, '<em class="ai-italic">$1</em>');
+  // Italic text *text*
+  html = html.replace(/\*(.*?)\*/g, '<em class="ai-italic">$1</em>');
 
-    // Code blocks ```code```
-    html = html.replace(/```([\s\S]*?)```/g, '<pre class="ai-code-block"><code>$1</code></pre>');
+  // Code blocks ```code```
+  html = html.replace(/```([\s\S]*?)```/g, '<pre class="ai-code-block"><code>$1</code></pre>');
 
-    // Inline code `code`
-    html = html.replace(/`([^`]+)`/g, '<code class="ai-inline-code">$1</code>');
+  // Inline code `code`
+  html = html.replace(/`([^`]+)`/g, '<code class="ai-inline-code">$1</code>');
 
-    // Unordered lists
-    html = html.replace(/^\s*[-*+]\s+(.+)$/gim, '<li class="ai-list-item">$1</li>');
+  // Unordered lists
+  html = html.replace(/^\s*[-*+]\s+(.+)$/gim, '<li class="ai-list-item">$1</li>');
 
-    // Wrap consecutive list items in ul
-    html = html.replace(/(<li class="ai-list-item">.*<\/li>\n?)+/g, (match) => {
-        return '<ul class="ai-list">' + match + '</ul>';
-    });
+  // Wrap consecutive list items in ul
+  html = html.replace(/(<li class="ai-list-item">.*<\/li>\n?)+/g, (match) => {
+    return '<ul class="ai-list">' + match + '</ul>';
+  });
 
-    // Numbered lists
-    html = html.replace(/^\s*(\d+)\.\s+(.+)$/gim, '<li class="ai-list-item">$2</li>');
+  // Numbered lists
+  html = html.replace(/^\s*(\d+)\.\s+(.+)$/gim, '<li class="ai-list-item">$2</li>');
 
-    // Wrap consecutive numbered list items in ol
-    html = html.replace(/(<li class="ai-list-item">.*<\/li>\n?)+/g, (match) => {
-        // Only wrap if not already wrapped
-        if (!match.includes('<ul') && !match.includes('<ol')) {
-            return '<ol class="ai-list">' + match + '</ol>';
-        }
-        return match;
-    });
+  // Wrap consecutive numbered list items in ol
+  html = html.replace(/(<li class="ai-list-item">.*<\/li>\n?)+/g, (match) => {
+    // Only wrap if not already wrapped
+    if (!match.includes('<ul') && !match.includes('<ol')) {
+      return '<ol class="ai-list">' + match + '</ol>';
+    }
+    return match;
+  });
 
-    // Action keywords with badges
-    html = html.replace(/\bBUY\b/g, '<span class="ai-badge ai-badge-buy">BUY</span>');
-    html = html.replace(/\bSELL\b/g, '<span class="ai-badge ai-badge-sell">SELL</span>');
-    html = html.replace(/\bHOLD\b/g, '<span class="ai-badge ai-badge-hold">HOLD</span>');
+  // Action keywords with badges
+  html = html.replace(/\bBUY\b/g, '<span class="ai-badge ai-badge-buy">BUY</span>');
+  html = html.replace(/\bSELL\b/g, '<span class="ai-badge ai-badge-sell">SELL</span>');
+  html = html.replace(/\bHOLD\b/g, '<span class="ai-badge ai-badge-hold">HOLD</span>');
 
-    // Stock symbols (e.g., $AAPL, AAPL)
-    html = html.replace(/\$([A-Z]{1,5})\b/g, '<span class="ai-symbol">$$$1</span>');
-    html = html.replace(/\b([A-Z]{2,5})\b(?=\s|,|\.|\))/g, (match) => {
-        // Only highlight if it looks like a stock symbol (2-5 uppercase letters)
-        if (match.length >= 2 && match.length <= 5) {
-            return `<span class="ai-symbol">${match}</span>`;
-        }
-        return match;
-    });
+  // Stock symbols (e.g., $AAPL, AAPL)
+  html = html.replace(/\$([A-Z]{1,5})\b/g, '<span class="ai-symbol">$$$1</span>');
+  html = html.replace(/\b([A-Z]{2,5})\b(?=\s|,|\.|\))/g, (match) => {
+    // Only highlight if it looks like a stock symbol (2-5 uppercase letters)
+    if (match.length >= 2 && match.length <= 5) {
+      return `<span class="ai-symbol">${match}</span>`;
+    }
+    return match;
+  });
 
-    // Percentages
-    html = html.replace(/(-?\d+\.?\d*)%/g, '<span class="ai-percentage">$1%</span>');
+  // Percentages
+  html = html.replace(/(-?\d+\.?\d*)%/g, '<span class="ai-percentage">$1%</span>');
 
-    // Currency
-    html = html.replace(/\$(\d{1,3}(,\d{3})*(\.\d{2})?)/g, '<span class="ai-currency">$$$1</span>');
+  // Currency
+  html = html.replace(/\$(\d{1,3}(,\d{3})*(\.\d{2})?)/g, '<span class="ai-currency">$$$1</span>');
 
-    // Line breaks
-    html = html.replace(/\n\n/g, '<br/><br/>');
-    html = html.replace(/\n/g, '<br/>');
+  // Line breaks
+  html = html.replace(/\n\n/g, '<br/><br/>');
+  html = html.replace(/\n/g, '<br/>');
 
-    // Blockquotes
-    html = html.replace(/^&gt;\s+(.+)$/gim, '<blockquote class="ai-blockquote">$1</blockquote>');
+  // Blockquotes
+  html = html.replace(/^&gt;\s+(.+)$/gim, '<blockquote class="ai-blockquote">$1</blockquote>');
 
-    // Horizontal rules
-    html = html.replace(/^---$/gim, '<hr class="ai-hr"/>');
+  // Horizontal rules
+  html = html.replace(/^---$/gim, '<hr class="ai-hr"/>');
 
-    return html;
+  return `<div class="glass-card p-4">${html}</div>`;
 };
 
 // CSS styles to inject

@@ -253,7 +253,7 @@ export default function AIRecommendations({ holdings, metrics }) {
 
                     {/* Analysis Results */}
                     {analysis && (
-                        <div className="glass-card p-4 animate-fade-in">
+                        <div className="animate-fade-in">
                             <style>{getMarkdownStyles()}</style>
                             <style>{getJSONAnalysisStyles()}</style>
                             <div

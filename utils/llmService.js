@@ -30,7 +30,7 @@ export const getProviderConfig = () => {
                     model: 'gpt-4-turbo',
                     settings: {
                         temperature: 0.7,
-                        maxTokens: 2000
+                        maxTokens: 4000
                     }
                 }
             }
@@ -100,7 +100,7 @@ export const setProviderApiKey = (providerId, apiKey) => {
             model: provider.defaultModel,
             settings: {
                 temperature: 0.7,
-                maxTokens: 2000
+                maxTokens: 4000
             }
         };
     } else {

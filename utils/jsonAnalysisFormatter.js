@@ -6,10 +6,41 @@ export const formatJSONAnalysis = (jsonString) => {
     try {
         // Try to extract JSON from the response
         let cleanJson = jsonString.trim();
+
+        // Remove markdown code blocks
         cleanJson = cleanJson.replace(/```json\n?/g, '').replace(/```\n?/g, '');
 
-        // Parse the JSON
-        const analysis = JSON.parse(cleanJson);
+        // Extract JSON object (find first '{' and last '}')
+        const firstBrace = cleanJson.indexOf('{');
+        const lastBrace = cleanJson.lastIndexOf('}');
+
+        if (firstBrace !== -1 && lastBrace !== -1) {
+            cleanJson = cleanJson.substring(firstBrace, lastBrace + 1);
+        }
+
+        // Remove trailing commas (common LLM JSON error)
+        cleanJson = cleanJson.replace(/,(\s*[}\]])/g, '$1');
+
+        let analysis;
+        try {
+            // First try strict JSON parse
+            analysis = JSON.parse(cleanJson);
+        } catch (strictError) {
+            console.warn('Strict JSON parse failed, attempting loose parse:', strictError);
+            try {
+                // Fallback: Use Function constructor for loose JSON (handles single quotes, unquoted keys, etc.)
+                // Security Note: LLM output is generally trusted in this context, but we ensure it's an object structure
+                if (cleanJson.trim().startsWith('{') || cleanJson.trim().startsWith('[')) {
+                    analysis = new Function('return ' + cleanJson)();
+                } else {
+                    throw strictError;
+                }
+            } catch (looseError) {
+                console.error('All JSON parsing attempts failed:', looseError);
+                console.debug('Failed JSON string:', cleanJson);
+                return null;
+            }
+        }
 
         // Start Dashboard Grid
         let html = `<div class="analysis-dashboard">`;

@@ -233,19 +233,25 @@ export const LLM_PROVIDERS = {
         requiresApiKey: true,
         models: [
             {
-                id: 'gemini-pro',
-                name: 'Gemini Pro',
-                contextWindow: 32000,
-                description: 'Powerful multimodal model'
+                id: 'gemini-1.5-flash',
+                name: 'Gemini 1.5 Flash',
+                contextWindow: 1000000,
+                description: 'Fast, multimodal, long context'
             },
             {
-                id: 'gemini-pro-vision',
-                name: 'Gemini Pro Vision',
-                contextWindow: 16000,
-                description: 'Supports images'
+                id: 'gemini-1.5-pro',
+                name: 'Gemini 1.5 Pro',
+                contextWindow: 2000000,
+                description: 'Best performing, massive context'
+            },
+            {
+                id: 'gemini-pro',
+                name: 'Gemini Pro 1.0',
+                contextWindow: 32000,
+                description: 'Legacy model'
             }
         ],
-        defaultModel: 'gemini-pro',
+        defaultModel: 'gemini-1.5-flash',
         headers: (apiKey) => ({
             'Content-Type': 'application/json'
         }),
@@ -260,7 +266,8 @@ export const LLM_PROVIDERS = {
                 contents,
                 generationConfig: {
                     temperature: options.temperature || 0.7,
-                    maxOutputTokens: options.maxTokens || 2000
+                    maxOutputTokens: options.maxTokens || 8192,
+                    responseMimeType: "application/json"
                 }
             };
         },
@@ -268,7 +275,36 @@ export const LLM_PROVIDERS = {
             return response.candidates[0].content.parts[0].text;
         },
         customEndpoint: (model, apiKey) => {
-            return `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+            const modelId = model.startsWith('models/') ? model.split('/')[1] : model;
+            return `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${apiKey}`;
+        },
+        // Dynamic model fetching from Google API
+        fetchModels: async (apiKey) => {
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch models');
+                }
+
+                const data = await response.json();
+
+                if (!data.models) return null;
+
+                // Transform API response to our model format
+                return data.models
+                    .filter(model => model.supportedGenerationMethods && model.supportedGenerationMethods.includes('generateContent')) // Only chat models
+                    .map(model => ({
+                        id: model.name.replace('models/', ''),
+                        name: model.displayName || model.name.split('/').pop(),
+                        contextWindow: model.inputTokenLimit || 32000,
+                        description: model.description || 'Google Gemini model'
+                    }))
+                    .sort((a, b) => b.contextWindow - a.contextWindow);
+            } catch (error) {
+                console.error('Error fetching Google models:', error);
+                return null; // Fall back to static list
+            }
         }
     }
 };

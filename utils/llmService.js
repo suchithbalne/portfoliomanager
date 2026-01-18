@@ -286,7 +286,10 @@ Provide your analysis in the following JSON structure:
 - Assume missing data conservatively
 - No speculation, no hype
 - No explanations outside JSON
-- Return ONLY valid JSON, no markdown code blocks`;
+- Return ONLY valid JSON, no markdown code blocks
+- IMPORTANT: Do not include comments (e.g. // or /* */) in the JSON
+- Do not use newlines in string values, use \\n if needed
+- Use single quotes for text inside logic/reasons to avoid escaping issues`;
 };
 
 /**

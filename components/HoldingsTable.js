@@ -6,6 +6,12 @@ import * as calc from '../utils/portfolioCalculations';
 export default function HoldingsTable({ holdings, showAll = true }) {
     const [sortField, setSortField] = useState('marketValue');
     const [sortDirection, setSortDirection] = useState('desc');
+    const [selectedSector, setSelectedSector] = useState('All');
+    const [selectedAssetType, setSelectedAssetType] = useState('All');
+
+    // Get unique values for filters
+    const sectors = ['All', ...new Set(holdings.map(h => h.sector || 'Unknown'))].sort();
+    const assetTypes = ['All', ...new Set(holdings.map(h => h.assetType || 'Unknown'))].sort();
 
     const handleSort = (field) => {
         if (sortField === field) {
@@ -16,7 +22,13 @@ export default function HoldingsTable({ holdings, showAll = true }) {
         }
     };
 
-    const sortedHoldings = [...holdings].sort((a, b) => {
+    const filteredHoldings = holdings.filter(h => {
+        const sectorMatch = selectedSector === 'All' || (h.sector || 'Unknown') === selectedSector;
+        const assetMatch = selectedAssetType === 'All' || (h.assetType || 'Unknown') === selectedAssetType;
+        return sectorMatch && assetMatch;
+    });
+
+    const sortedHoldings = [...filteredHoldings].sort((a, b) => {
         const aVal = a[sortField];
         const bVal = b[sortField];
         const multiplier = sortDirection === 'asc' ? 1 : -1;
@@ -40,7 +52,39 @@ export default function HoldingsTable({ holdings, showAll = true }) {
 
     return (
         <div className="dashboard-card">
-            <h3 className="card-header">{showAll ? 'All Holdings' : 'Top Holdings'}</h3>
+            <div style={{ padding: '20px 20px 0 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+                <h3 className="card-header" style={{ padding: 0, margin: 0, border: 'none' }}>
+                    {showAll ? 'All Holdings' : 'Top Holdings'}
+                </h3>
+
+                {showAll && (
+                    <div style={{ display: 'flex', gap: '12px' }}>
+                        <select
+                            className="input"
+                            style={{ padding: '8px 12px', fontSize: '0.875rem', minWidth: '140px' }}
+                            value={selectedAssetType}
+                            onChange={(e) => setSelectedAssetType(e.target.value)}
+                        >
+                            {assetTypes.map(type => (
+                                <option key={type} value={type}>{type === 'All' ? 'All Types' : type}</option>
+                            ))}
+                        </select>
+                        <select
+                            className="input"
+                            style={{ padding: '8px 12px', fontSize: '0.875rem', minWidth: '140px' }}
+                            value={selectedSector}
+                            onChange={(e) => setSelectedSector(e.target.value)}
+                        >
+                            {sectors.map(sector => (
+                                <option key={sector} value={sector}>{sector === 'All' ? 'All Sectors' : sector}</option>
+                            ))}
+                        </select>
+                    </div>
+                )}
+            </div>
+
+            {/* Divider if headers were inline, but now they are in a flex headers above */}
+            <div style={{ height: '20px' }}></div>
 
             <div className="table-container">
                 <table>

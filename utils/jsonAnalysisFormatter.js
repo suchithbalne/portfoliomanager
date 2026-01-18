@@ -4,39 +4,49 @@
 
 export const formatJSONAnalysis = (jsonString) => {
     try {
-        // Try to extract JSON from the response
-        let cleanJson = jsonString.trim();
+        let cleanJson = jsonString;
 
-        // Remove markdown code blocks
-        cleanJson = cleanJson.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+        // 1. Remove Markdown code blocks
+        cleanJson = cleanJson.replace(/```(?:json)?\s*([\s\S]*?)```/g, '$1');
 
-        // Extract JSON object (find first '{' and last '}')
+        // 2. Find the first '{' and last '}'
         const firstBrace = cleanJson.indexOf('{');
         const lastBrace = cleanJson.lastIndexOf('}');
 
         if (firstBrace !== -1 && lastBrace !== -1) {
             cleanJson = cleanJson.substring(firstBrace, lastBrace + 1);
+        } else {
+            console.warn('No JSON object found in response');
+            return null;
         }
 
-        // Remove trailing commas (common LLM JSON error)
+        // 3. Remove comments (// and /* */)
+        cleanJson = cleanJson.replace(/\/\*[\s\S]*?\*\/|([^\\:]|^)\/\/.*$/gm, '$1');
+
+        // 4. Sanitize Newlines: Replace real newlines with spaces to prevent breaking JS/JSON parsing
+        // (JSON strings cannot contain literal newlines)
+        cleanJson = cleanJson.replace(/[\r\n]+/g, ' ');
+
+        // 5. Remove trailing commas
         cleanJson = cleanJson.replace(/,(\s*[}\]])/g, '$1');
 
+        // 6. Try Parse
         let analysis;
         try {
-            // First try strict JSON parse
             analysis = JSON.parse(cleanJson);
         } catch (strictError) {
-            console.warn('Strict JSON parse failed, attempting loose parse:', strictError);
+            // Fallback to loose parsing
             try {
-                // Fallback: Use Function constructor for loose JSON (handles single quotes, unquoted keys, etc.)
-                // Security Note: LLM output is generally trusted in this context, but we ensure it's an object structure
+                // Ensure we have something looking like an object
                 if (cleanJson.trim().startsWith('{') || cleanJson.trim().startsWith('[')) {
+                    // new Function is safer than eval() but still powerful. 
+                    // We rely on the fact that we've stripped code blocks and comments.
                     analysis = new Function('return ' + cleanJson)();
                 } else {
                     throw strictError;
                 }
             } catch (looseError) {
-                console.error('All JSON parsing attempts failed:', looseError);
+                console.error('JSON parsing failed:', strictError);
                 console.debug('Failed JSON string:', cleanJson);
                 return null;
             }

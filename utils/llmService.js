@@ -205,38 +205,87 @@ const formatPortfolioForAnalysis = (holdings, metrics) => {
  * Create prompt for portfolio analysis
  */
 const createAnalysisPrompt = (portfolioData) => {
-    return `You are an expert financial advisor analyzing an investment portfolio. Please provide detailed, actionable recommendations.
+    // Prepare portfolio data in required format
+    const portfolioHoldings = portfolioData.holdings.map(h => ({
+        ticker: h.symbol,
+        weight: ((h.currentValue / portfolioData.totalValue) * 100).toFixed(2),
+        avg_cost: h.costBasis
+    }));
 
-Portfolio Summary:
+    return `Analyze the following US stock portfolio for a retail investor.
+
+**Investor Profile**
+- Horizon: long_term
+- Risk: moderate
+- Goal: growth
+
+**Portfolio (USD, US markets):**
+${JSON.stringify(portfolioHoldings, null, 2)}
+
+**Portfolio Summary:**
 - Total Value: $${portfolioData.totalValue.toFixed(2)}
 - Total Return: ${portfolioData.totalReturn.toFixed(2)}%
 - Risk Score: ${portfolioData.risk.score.toFixed(0)}/100
 - Diversification Score: ${portfolioData.diversification.score.toFixed(0)}/100
 - Concentration Risk: ${portfolioData.diversification.concentrationRisk.toFixed(1)}% in top 5 holdings
 
-Holdings (${portfolioData.holdings.length} positions):
-${portfolioData.holdings.map(h =>
-        `- ${h.symbol} (${h.name}): ${h.type}, ${h.sector}, Value: $${h.currentValue.toFixed(2)}, Return: ${h.returnPercent.toFixed(2)}%`
-    ).join('\n')}
-
-Asset Allocation:
+**Current Asset Allocation:**
 ${Object.entries(portfolioData.diversification.assetAllocation).map(([type, data]) =>
-        `- ${type}: ${data.percentage.toFixed(1)}% ($${data.value.toFixed(2)})`
+        `- ${type}: ${data.percentage.toFixed(1)}%`
     ).join('\n')}
 
-Sector Allocation:
+**Current Sector Allocation:**
 ${Object.entries(portfolioData.diversification.sectorAllocation).map(([sector, data]) =>
-        `- ${sector}: ${data.percentage.toFixed(1)}% ($${data.value.toFixed(2)})`
+        `- ${sector}: ${data.percentage.toFixed(1)}%`
     ).join('\n')}
 
-Please provide:
-1. **Overall Assessment**: Brief analysis of the portfolio's current state
-2. **Specific Recommendations**: For each holding, provide BUY/SELL/HOLD recommendation with reasoning
-3. **Diversification Suggestions**: How to improve diversification
-4. **Risk Management**: Suggestions to optimize risk-adjusted returns
-5. **Action Items**: Top 3-5 specific actions to take
+🔹 **REQUIRED OUTPUT (JSON ONLY)**
+Provide your analysis in the following JSON structure:
+{
+  "portfolio_overview": {
+    "total_stocks": 0,
+    "top_holdings": [
+      { "ticker": "", "weight": % }
+    ],
+    "concentration_risk": "Low | Moderate | High"
+  },
+  "sector_allocation": [
+    { "sector": "", "weight": %, "status": "Normal | Overweight | Underweight" }
+  ],
+  "risk_analysis": {
+    "single_stock_risk": true,
+    "sector_concentration_risk": true,
+    "correlation_risk": "Low | Moderate | High"
+  },
+  "fundamental_quality": [
+    { "ticker": "", "rating": "Strong | Neutral | Weak", "reason": "" }
+  ],
+  "scores": {
+    "diversification": 0,
+    "fundamentals": 0,
+    "risk_balance": 0,
+    "overall": 0
+  },
+  "recommendations": {
+    "hold": [],
+    "reduce": [],
+    "exit": [],
+    "rebalance_actions": []
+  },
+  "retail_summary": {
+    "strengths": [],
+    "risks": [],
+    "improvement_plan": []
+  }
+}
 
-Format your response in clear sections with markdown formatting.`;
+🔹 **STRICT RULES**
+- Evaluate top 5–7 holdings only for fundamentals
+- Flag: Any stock >20%, Any sector >35%
+- Assume missing data conservatively
+- No speculation, no hype
+- No explanations outside JSON
+- Return ONLY valid JSON, no markdown code blocks`;
 };
 
 /**
@@ -264,7 +313,13 @@ export const analyzePortfolio = async (holdings, metrics, providerId = null) => 
     const messages = [
         {
             role: 'system',
-            content: 'You are an expert financial advisor providing portfolio analysis and investment recommendations. Be specific, actionable, and consider both risk and return. Always provide clear BUY/SELL/HOLD recommendations with reasoning.',
+            content: `You are a US Equity Portfolio Analyst specializing in:
+- Fundamental analysis
+- Portfolio diversification & concentration risk
+- GICS sector allocation
+- Long-term retail investor optimization
+
+Analyze objectively, conservatively, and professionally.`,
         },
         {
             role: 'user',

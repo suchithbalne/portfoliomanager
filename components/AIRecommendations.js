@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { analyzePortfolio, getActiveProvider, getProviderApiKey } from '../utils/llmService';
 import { getProvider } from '../utils/llmProviders';
+import { formatMarkdownToHTML, getMarkdownStyles } from '../utils/markdownFormatter';
+import { formatJSONAnalysis, getJSONAnalysisStyles } from '../utils/jsonAnalysisFormatter';
 import LLMProviderSettings from './LLMProviderSettings';
 
 export default function AIRecommendations({ holdings, metrics }) {
@@ -205,28 +207,26 @@ export default function AIRecommendations({ holdings, metrics }) {
                     {/* Analysis Results */}
                     {analysis && (
                         <div className="glass-card p-4 animate-fade-in">
+                            <style>{getMarkdownStyles()}</style>
+                            <style>{getJSONAnalysisStyles()}</style>
                             <div
                                 style={{
-                                    whiteSpace: 'pre-wrap',
                                     fontFamily: 'inherit',
                                     lineHeight: '1.8',
                                     color: 'var(--text-secondary)',
                                 }}
                                 dangerouslySetInnerHTML={{
-                                    __html: analysis
-                                        .replace(/\*\*(.*?)\*\*/g, '<strong style="color: var(--text-primary)">$1</strong>')
-                                        .replace(/^### (.*$)/gim, '<h3 style="color: var(--primary-purple); margin-top: 24px; margin-bottom: 12px;">$1</h3>')
-                                        .replace(/^## (.*$)/gim, '<h2 style="color: var(--primary-blue); margin-top: 32px; margin-bottom: 16px;">$1</h2>')
-                                        .replace(/^# (.*$)/gim, '<h1 style="margin-top: 32px; margin-bottom: 16px;">$1</h1>')
-                                        .replace(/\n- /g, '\n• ')
-                                        .replace(/BUY/g, '<span style="color: var(--success); font-weight: 600;">BUY</span>')
-                                        .replace(/SELL/g, '<span style="color: var(--error); font-weight: 600;">SELL</span>')
-                                        .replace(/HOLD/g, '<span style="color: var(--warning); font-weight: 600;">HOLD</span>'),
+                                    __html: (() => {
+                                        // Try JSON formatting first
+                                        const jsonHTML = formatJSONAnalysis(analysis);
+                                        if (jsonHTML) return jsonHTML;
+                                        // Fallback to markdown formatting
+                                        return formatMarkdownToHTML(analysis);
+                                    })()
                                 }}
                             />
                         </div>
                     )}
-
                     {/* Placeholder when no analysis */}
                     {!analysis && !isAnalyzing && !error && (
                         <div className="glass-card p-4">

@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { usePortfolio } from '../context/PortfolioContext';
 import { parsePortfolioFile } from '../utils/fileParser';
-import samplePortfolio from '../utils/sampleData';
 
 export default function FileUpload() {
     const { importHoldings } = usePortfolio();
@@ -49,10 +48,6 @@ export default function FileUpload() {
         if (file) {
             handleFile(file);
         }
-    };
-
-    const loadSampleData = () => {
-        importHoldings(samplePortfolio);
     };
 
     return (
@@ -163,28 +158,6 @@ export default function FileUpload() {
                             <strong>Error:</strong> {error}
                         </div>
                     )}
-                </div>
-
-                <div style={{ marginTop: '32px', textAlign: 'center' }}>
-                    <p style={{ color: 'var(--text-secondary)', marginBottom: '16px' }}>
-                        Don't have a file? Try the demo
-                    </p>
-                    <button onClick={loadSampleData} className="btn btn-secondary">
-                        <svg
-                            width="20"
-                            height="20"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        >
-                            <line x1="12" y1="5" x2="12" y2="19" />
-                            <polyline points="19 12 12 19 5 12" />
-                        </svg>
-                        Load Sample Portfolio
-                    </button>
                 </div>
 
                 <div className="glass-card" style={{ marginTop: '48px', padding: '24px' }}>

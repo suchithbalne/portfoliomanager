@@ -59,32 +59,175 @@ export const parseExcel = (file) => {
 };
 
 /**
+ * Clean numeric value from string (removes $, +, %, commas)
+ */
+const cleanNumericValue = (value) => {
+    if (value === null || value === undefined || value === '') return 0;
+    if (typeof value === 'number') return value;
+
+    // Remove $, +, %, commas, and whitespace
+    const cleaned = String(value).replace(/[\$\+\%\,\s]/g, '');
+    const parsed = parseFloat(cleaned);
+    return isNaN(parsed) ? 0 : parsed;
+};
+
+/**
  * Normalize data from different broker formats
  */
 const normalizeData = (data) => {
-    return data.map((row) => {
-        // Try to detect and normalize different broker formats
-        const normalized = {
-            symbol: detectField(row, ['symbol', 'Symbol', 'Ticker', 'ticker', 'SYMBOL']),
-            name: detectField(row, ['name', 'Name', 'Description', 'description', 'Security Name', 'DESCRIPTION']),
-            quantity: parseFloat(detectField(row, ['quantity', 'Quantity', 'Shares', 'shares', 'Qty', 'qty', 'QUANTITY']) || 0),
-            costBasis: parseFloat(detectField(row, ['costBasis', 'Cost Basis', 'cost_basis', 'Average Cost', 'averageCost', 'Price Paid', 'COST_BASIS']) || 0),
-            currentPrice: parseFloat(detectField(row, ['currentPrice', 'Current Price', 'current_price', 'Last Price', 'lastPrice', 'Price', 'price', 'CURRENT_PRICE']) || 0),
-            assetType: detectField(row, ['assetType', 'Asset Type', 'asset_type', 'Type', 'type', 'Security Type', 'ASSET_TYPE']) || 'Stock',
-            sector: detectField(row, ['sector', 'Sector', 'Industry', 'industry', 'SECTOR']) || 'Unknown',
-            purchaseDate: detectField(row, ['purchaseDate', 'Purchase Date', 'purchase_date', 'Date Acquired', 'dateAcquired', 'PURCHASE_DATE']) || new Date().toISOString().split('T')[0],
-        };
+    // Filter out empty rows and footer rows (Fidelity includes disclaimers at the bottom)
+    const validRows = data.filter(row => {
+        // Must have a symbol and it shouldn't be cash or empty
+        const symbol = detectField(row, ['Symbol', 'symbol', 'Ticker', 'ticker', 'SYMBOL']);
+        return symbol &&
+            symbol.trim() !== '' &&
+            !symbol.includes('FCASH') &&
+            !symbol.includes('**') &&
+            !row.Symbol?.includes('The data and information'); // Filter out Fidelity disclaimers
+    });
 
-        // Calculate market value and gain/loss
-        normalized.marketValue = normalized.quantity * normalized.currentPrice;
-        normalized.totalCost = normalized.quantity * normalized.costBasis;
-        normalized.gainLoss = normalized.marketValue - normalized.totalCost;
-        normalized.gainLossPercent = normalized.totalCost > 0
-            ? ((normalized.gainLoss / normalized.totalCost) * 100)
-            : 0;
+    return validRows.map((row) => {
+        // Detect Fidelity format (has "Description" and "Current Value" columns)
+        const isFidelityFormat = row.Description !== undefined || row['Current Value'] !== undefined;
+
+        let normalized;
+
+        if (isFidelityFormat) {
+            // Fidelity-specific parsing
+            normalized = {
+                symbol: row.Symbol?.trim() || '',
+                name: row.Description?.trim() || row.Symbol?.trim() || '',
+                quantity: cleanNumericValue(row.Quantity),
+                currentPrice: cleanNumericValue(row['Last Price']),
+                marketValue: cleanNumericValue(row['Current Value']),
+                costBasis: 0, // Will calculate from average cost basis
+                totalCost: cleanNumericValue(row['Cost Basis Total']),
+                gainLoss: cleanNumericValue(row['Total Gain/Loss Dollar']),
+                gainLossPercent: cleanNumericValue(row['Total Gain/Loss Percent']),
+                assetType: determineAssetType(row.Type, row.Symbol),
+                sector: determineSector(row.Symbol, row.Description),
+                purchaseDate: new Date().toISOString().split('T')[0], // Default to today
+            };
+
+            // Calculate average cost basis if we have total cost and quantity
+            if (normalized.quantity > 0 && normalized.totalCost > 0) {
+                normalized.costBasis = normalized.totalCost / normalized.quantity;
+            } else if (row['Average Cost Basis']) {
+                normalized.costBasis = cleanNumericValue(row['Average Cost Basis']);
+                normalized.totalCost = normalized.costBasis * normalized.quantity;
+            }
+
+            // Recalculate market value if not provided
+            if (normalized.marketValue === 0 && normalized.quantity > 0 && normalized.currentPrice > 0) {
+                normalized.marketValue = normalized.quantity * normalized.currentPrice;
+            }
+
+            // Recalculate gain/loss if not provided
+            if (normalized.gainLoss === 0 && normalized.marketValue > 0 && normalized.totalCost > 0) {
+                normalized.gainLoss = normalized.marketValue - normalized.totalCost;
+                normalized.gainLossPercent = (normalized.gainLoss / normalized.totalCost) * 100;
+            }
+        } else {
+            // Generic format parsing
+            normalized = {
+                symbol: detectField(row, ['symbol', 'Symbol', 'Ticker', 'ticker', 'SYMBOL']),
+                name: detectField(row, ['name', 'Name', 'Description', 'description', 'Security Name', 'DESCRIPTION']),
+                quantity: parseFloat(detectField(row, ['quantity', 'Quantity', 'Shares', 'shares', 'Qty', 'qty', 'QUANTITY']) || 0),
+                costBasis: parseFloat(detectField(row, ['costBasis', 'Cost Basis', 'cost_basis', 'Average Cost', 'averageCost', 'Average Cost Basis', 'Price Paid', 'COST_BASIS']) || 0),
+                currentPrice: parseFloat(detectField(row, ['currentPrice', 'Current Price', 'current_price', 'Last Price', 'lastPrice', 'Price', 'price', 'CURRENT_PRICE']) || 0),
+                assetType: detectField(row, ['assetType', 'Asset Type', 'asset_type', 'Type', 'type', 'Security Type', 'ASSET_TYPE']) || 'Stock',
+                sector: detectField(row, ['sector', 'Sector', 'Industry', 'industry', 'SECTOR']) || 'Unknown',
+                purchaseDate: detectField(row, ['purchaseDate', 'Purchase Date', 'purchase_date', 'Date Acquired', 'dateAcquired', 'PURCHASE_DATE']) || new Date().toISOString().split('T')[0],
+            };
+
+            // Calculate derived values
+            normalized.marketValue = normalized.quantity * normalized.currentPrice;
+            normalized.totalCost = normalized.quantity * normalized.costBasis;
+            normalized.gainLoss = normalized.marketValue - normalized.totalCost;
+            normalized.gainLossPercent = normalized.totalCost > 0
+                ? ((normalized.gainLoss / normalized.totalCost) * 100)
+                : 0;
+        }
 
         return normalized;
     }).filter(item => item.symbol && item.quantity > 0); // Filter out invalid entries
+};
+
+/**
+ * Determine asset type from Fidelity Type field or symbol
+ */
+const determineAssetType = (type, symbol) => {
+    if (!type) {
+        // Guess from symbol
+        if (symbol?.includes('ETF') || symbol?.match(/^(VOO|VTI|SPY|QQQ|IWM|VEA|VWO|AGG|BND)$/)) {
+            return 'ETF';
+        }
+        return 'Stock';
+    }
+
+    const typeUpper = type.toUpperCase();
+    if (typeUpper.includes('ETF')) return 'ETF';
+    if (typeUpper.includes('MUTUAL')) return 'Mutual Fund';
+    if (typeUpper.includes('BOND')) return 'Bond';
+    if (typeUpper.includes('OPTION')) return 'Option';
+    if (typeUpper.includes('CASH')) return 'Cash';
+
+    return 'Stock';
+};
+
+/**
+ * Determine sector from symbol and description
+ */
+const determineSector = (symbol, description) => {
+    if (!description) return 'Unknown';
+
+    const descUpper = description.toUpperCase();
+
+    // Technology
+    if (descUpper.includes('SEMICONDUCTOR') || descUpper.includes('SOFTWARE') ||
+        descUpper.includes('COMPUTING') || descUpper.includes('QUANTUM') ||
+        descUpper.includes('TECH') || descUpper.includes('MICRO DEVICES') ||
+        descUpper.includes('NVIDIA') || descUpper.includes('INTEL') ||
+        descUpper.includes('MICROSOFT') || descUpper.includes('ALPHABET') ||
+        descUpper.includes('META') || descUpper.includes('BROADCOM')) {
+        return 'Technology';
+    }
+
+    // Automotive/Transportation
+    if (descUpper.includes('TESLA') || descUpper.includes('AUTOMOTIVE') ||
+        descUpper.includes('AVIATION') || descUpper.includes('ROBOTICS')) {
+        return 'Automotive';
+    }
+
+    // E-commerce/Retail
+    if (descUpper.includes('AMAZON') || descUpper.includes('ECOMMERCE')) {
+        return 'E-commerce';
+    }
+
+    // Financial
+    if (descUpper.includes('FINANCIAL') || descUpper.includes('BANK') ||
+        descUpper.includes('SOFI') || descUpper.includes('TECHNOLOGIES INC')) {
+        return 'Financial';
+    }
+
+    // Healthcare/Biotech
+    if (descUpper.includes('THERAPEUTICS') || descUpper.includes('CRISPR') ||
+        descUpper.includes('HEALTHCARE') || descUpper.includes('PHARMA')) {
+        return 'Healthcare';
+    }
+
+    // Energy/Utilities
+    if (descUpper.includes('ENERGY') || descUpper.includes('NEXTERA')) {
+        return 'Energy';
+    }
+
+    // Index Fund
+    if (descUpper.includes('INDEX') || descUpper.includes('S&P') ||
+        descUpper.includes('VANGUARD') || descUpper.includes('ETF')) {
+        return 'Index Fund';
+    }
+
+    return 'Technology'; // Default for tech-heavy portfolios
 };
 
 /**

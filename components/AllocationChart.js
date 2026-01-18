@@ -106,7 +106,7 @@ export default function AllocationChart({ holdings, metrics }) {
     ChartJS.defaults.color = '#ffffff';
 
     return (
-        <div className="dashboard-card">
+        <div className="dashboard-card h-full">
             <h3 className="card-header">Portfolio Allocation</h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginBottom: '16px' }}>
                 Distribution by holding

@@ -300,6 +300,10 @@ p {
   gap: 24px;
 }
 
+.h-full {
+  height: 100%;
+}
+
 .gap-4 {
   gap: 32px;
 }
@@ -318,6 +322,24 @@ p {
 
 .grid-cols-4 {
   grid-template-columns: repeat(4, 1fr);
+}
+
+.grid-cols-12 {
+  grid-template-columns: repeat(12, 1fr);
+}
+
+.col-span-12 {
+  grid-column: span 12;
+}
+
+@media (min-width: 768px) {
+  .md\:col-span-8 {
+    grid-column: span 8;
+  }
+
+  .md\:col-span-4 {
+    grid-column: span 4;
+  }
 }
 
 .text-center {

@@ -43,9 +43,9 @@ export default function PerformanceMetrics({ holdings, metrics }) {
     ];
 
     return (
-        <div className="dashboard-card">
+        <div className="dashboard-card h-full">
             <h3 className="card-header">Performance Metrics</h3>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-4">
                 {metricsData.map((metric, index) => (
                     <div
                         key={index}

@@ -142,76 +142,79 @@ export default function DiversificationAnalysis({ holdings, metrics }) {
 
     return (
         <div className="grid gap-3">
-            {/* Diversification Score Card */}
-            <div className="dashboard-card">
-                <div className="flex justify-between items-center">
-                    <div>
-                        <h3 className="card-header">Diversification Score</h3>
-                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
-                            Based on asset types, sectors, and concentration
-                        </p>
-                    </div>
-                    <div className="text-center">
-                        <div
-                            style={{
-                                width: '120px',
-                                height: '120px',
-                                borderRadius: '50%',
-                                background: `conic-gradient(${level.color} ${metrics.diversificationScore}%, rgba(255,255,255,0.1) 0)`,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                position: 'relative',
-                            }}
-                        >
+            {/* Score and Advanced Metrics Side-by-Side */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {/* Diversification Score Card */}
+                <div className="dashboard-card">
+                    <div className="flex justify-between items-center h-full">
+                        <div>
+                            <h3 className="card-header" style={{ marginBottom: '8px', borderBottom: 'none' }}>Diversification Score</h3>
+                            <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+                                Based on asset types, sectors, and concentration
+                            </p>
+                        </div>
+                        <div className="text-center">
                             <div
                                 style={{
-                                    width: '100px',
-                                    height: '100px',
+                                    width: '120px',
+                                    height: '120px',
                                     borderRadius: '50%',
-                                    background: 'var(--bg-secondary)',
+                                    background: `conic-gradient(${level.color} ${metrics.diversificationScore}%, rgba(255,255,255,0.1) 0)`,
                                     display: 'flex',
-                                    flexDirection: 'column',
                                     alignItems: 'center',
                                     justifyContent: 'center',
+                                    position: 'relative',
                                 }}
                             >
-                                <h2 style={{ color: level.color, marginBottom: '4px' }}>
-                                    {metrics.diversificationScore.toFixed(0)}
-                                </h2>
-                                <p style={{ fontSize: '0.75rem', color: level.color }}>{level.text}</p>
+                                <div
+                                    style={{
+                                        width: '100px',
+                                        height: '100px',
+                                        borderRadius: '50%',
+                                        background: 'var(--bg-secondary)',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                    }}
+                                >
+                                    <h2 style={{ color: level.color, marginBottom: '4px' }}>
+                                        {metrics.diversificationScore.toFixed(0)}
+                                    </h2>
+                                    <p style={{ fontSize: '0.75rem', color: level.color }}>{level.text}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            {/* Advanced Metrics */}
-            <div className="dashboard-card">
-                <h3 className="card-header">Advanced Diversification Metrics</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    {advancedStats.map((stat, i) => (
-                        <div key={i} style={{
-                            padding: '16px',
-                            background: 'rgba(255, 255, 255, 0.02)',
-                            borderRadius: 'var(--radius-md)',
-                            border: '1px solid rgba(255, 255, 255, 0.05)',
-                            position: 'relative'
-                        }}>
-                            <div className="flex justify-between items-start mb-1">
-                                <h4 style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginBottom: '4px' }}>{stat.title}</h4>
-                                <div className="info-icon">
-                                    ⓘ
-                                    <div className="custom-tooltip">{stat.info}</div>
+                {/* Advanced Metrics */}
+                <div className="dashboard-card">
+                    <h3 className="card-header">Advanced Diversification Metrics</h3>
+                    <div className="grid grid-cols-2 gap-3">
+                        {advancedStats.map((stat, i) => (
+                            <div key={i} style={{
+                                padding: '12px',
+                                background: 'rgba(255, 255, 255, 0.02)',
+                                borderRadius: 'var(--radius-md)',
+                                border: '1px solid rgba(255, 255, 255, 0.05)',
+                                position: 'relative'
+                            }}>
+                                <div className="flex justify-between items-start mb-1">
+                                    <h4 style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginBottom: '4px' }}>{stat.title}</h4>
+                                    <div className="info-icon">
+                                        ⓘ
+                                        <div className="custom-tooltip">{stat.info}</div>
+                                    </div>
                                 </div>
+                                <div style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--primary-purple)', marginBottom: '4px' }}>{stat.value}</div>
+                                <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>{stat.desc}</p>
+                                <p style={{ fontSize: '0.7rem', color: 'var(--primary-blue)', opacity: 0.9 }}>
+                                    {stat.target}
+                                </p>
                             </div>
-                            <div style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--primary-purple)', marginBottom: '4px' }}>{stat.value}</div>
-                            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>{stat.desc}</p>
-                            <p style={{ fontSize: '0.7rem', color: 'var(--primary-blue)', opacity: 0.9 }}>
-                                {stat.target}
-                            </p>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
             </div>
 

@@ -272,7 +272,7 @@ export default function Dashboard() {
             {/* Tab Content */}
             <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
                 {activeTab === 'overview' && (
-                    <div className="grid grid-cols-12 gap-6 animate-fade-in">
+                    <div className="grid grid-cols-12 gap-4 animate-fade-in">
                         <div className="col-span-12 md:col-span-8">
                             <AllocationChart holdings={holdings} metrics={metrics} />
                         </div>

@@ -386,18 +386,12 @@ export default function Dashboard() {
                     <PortfolioSelector />
                 </div>
 
-                {/* Title and Actions - Centered Title */}
-                <div className="flex justify-between items-center">
-                    <div style={{ flex: 1 }}></div>
-
-                    <div className="text-center" style={{ flex: 2 }}>
-                        <h1 style={{ marginBottom: '8px' }}>Portfolio Dashboard</h1>
-                        <p style={{ color: 'var(--text-secondary)' }}>
-                            {holdings.length} holdings • Last updated: {new Date().toLocaleDateString()}
-                        </p>
-                    </div>
-
-
+                {/* Title - Centered */}
+                <div className="text-center" style={{ marginBottom: '24px' }}>
+                    <h1 style={{ marginBottom: '8px' }}>Portfolio Dashboard</h1>
+                    <p style={{ color: 'var(--text-secondary)' }}>
+                        {holdings.length} holdings • Last updated: {new Date().toLocaleDateString()}
+                    </p>
                 </div>
             </div>
 
@@ -423,7 +417,8 @@ export default function Dashboard() {
                         </div>
                     </div>
                 </div>
-            )}
+            )
+            }
 
             {/* Summary Cards */}
             <div className="grid grid-cols-4 gap-3 mb-4 animate-fade-in" style={{ animationDelay: '0.1s' }}>
@@ -490,49 +485,51 @@ export default function Dashboard() {
             </div>
 
             {/* Portfolio Breakdown (Consolidated View Only) */}
-            {viewMode === 'consolidated' && (
-                <div className="dashboard-card mb-4 animate-fade-in" style={{ animationDelay: '0.15s' }}>
-                    <h3 className="card-header">Portfolio Breakdown</h3>
-                    <div className="grid gap-2">
-                        {getPortfolioBreakdown().map(portfolio => (
-                            <div
-                                key={portfolio.id}
-                                style={{
-                                    padding: '12px',
-                                    background: 'rgba(255, 255, 255, 0.03)',
-                                    borderRadius: 'var(--radius-sm)',
-                                    border: '1px solid var(--glass-border)',
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                }}
-                            >
-                                <div>
-                                    <div style={{ fontWeight: '600', color: 'var(--text-primary)' }}>
-                                        {portfolio.name}
+            {
+                viewMode === 'consolidated' && (
+                    <div className="dashboard-card mb-4 animate-fade-in" style={{ animationDelay: '0.15s' }}>
+                        <h3 className="card-header">Portfolio Breakdown</h3>
+                        <div className="grid gap-2">
+                            {getPortfolioBreakdown().map(portfolio => (
+                                <div
+                                    key={portfolio.id}
+                                    style={{
+                                        padding: '12px',
+                                        background: 'rgba(255, 255, 255, 0.03)',
+                                        borderRadius: 'var(--radius-sm)',
+                                        border: '1px solid var(--glass-border)',
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                    }}
+                                >
+                                    <div>
+                                        <div style={{ fontWeight: '600', color: 'var(--text-primary)' }}>
+                                            {portfolio.name}
+                                        </div>
+                                        <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
+                                            {portfolio.accountType} • {portfolio.holdingsCount} holdings
+                                        </div>
                                     </div>
-                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
-                                        {portfolio.accountType} • {portfolio.holdingsCount} holdings
+                                    <div style={{ textAlign: 'right' }}>
+                                        <div style={{ fontWeight: '600', color: 'var(--text-primary)' }}>
+                                            {calc.formatCurrency(portfolio.totalValue)}
+                                        </div>
+                                        <div
+                                            style={{
+                                                fontSize: '0.875rem',
+                                                color: portfolio.gainLoss >= 0 ? 'var(--success)' : 'var(--error)',
+                                            }}
+                                        >
+                                            {calc.formatCurrency(portfolio.gainLoss)} ({calc.formatPercentage(portfolio.gainLossPercent)})
+                                        </div>
                                     </div>
                                 </div>
-                                <div style={{ textAlign: 'right' }}>
-                                    <div style={{ fontWeight: '600', color: 'var(--text-primary)' }}>
-                                        {calc.formatCurrency(portfolio.totalValue)}
-                                    </div>
-                                    <div
-                                        style={{
-                                            fontSize: '0.875rem',
-                                            color: portfolio.gainLoss >= 0 ? 'var(--success)' : 'var(--error)',
-                                        }}
-                                    >
-                                        {calc.formatCurrency(portfolio.gainLoss)} ({calc.formatPercentage(portfolio.gainLossPercent)})
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* Tabs */}
             <div
@@ -602,6 +599,6 @@ export default function Dashboard() {
 
                 {activeTab === 'ai' && <AIRecommendations holdings={holdings} metrics={metrics} />}
             </div>
-        </div>
+        </div >
     );
 }

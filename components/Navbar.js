@@ -53,7 +53,6 @@ export default function Navbar() {
                             e.currentTarget.style.background = 'none';
                         }}
                     >
-                        <div style={{ fontSize: '2rem' }}>📊</div>
                         <div>
                             <div style={{
                                 fontSize: '1.25rem',
@@ -69,19 +68,6 @@ export default function Navbar() {
 
                     {/* Navigation Links */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        {/* Welcome Link */}
-                        <button
-                            onClick={() => router.push('/welcome')}
-                            className="btn btn-secondary"
-                            style={{
-                                background: pathname === '/welcome' ? 'rgba(139, 92, 246, 0.2)' : 'transparent',
-                                border: pathname === '/welcome' ? '1px solid var(--primary-purple)' : '1px solid transparent',
-                                color: pathname === '/welcome' ? 'var(--primary-purple)' : 'var(--text-secondary)',
-                            }}
-                        >
-                            Welcome
-                        </button>
-
                         {/* Dashboard Link - Only show if portfolios exist */}
                         {portfolios && portfolios.length > 0 && (
                             <button
@@ -94,21 +80,6 @@ export default function Navbar() {
                                 }}
                             >
                                 Dashboard
-                            </button>
-                        )}
-
-                        {/* Get Started Button - Only on welcome page */}
-                        {pathname === '/welcome' && (
-                            <button
-                                onClick={() => router.push('/')}
-                                className="btn btn-primary"
-                                style={{
-                                    background: 'linear-gradient(135deg, var(--primary-purple) 0%, var(--primary-blue) 100%)',
-                                    border: 'none',
-                                    marginLeft: '8px',
-                                }}
-                            >
-                                Get Started →
                             </button>
                         )}
                     </div>

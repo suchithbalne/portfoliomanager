@@ -24,6 +24,7 @@ export default function PortfolioSelector() {
     const [deleteConfirmId, setDeleteConfirmId] = useState(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [newPortfolioName, setNewPortfolioName] = useState('');
+    const [showResetModal, setShowResetModal] = useState(false);
 
     const activePortfolio = portfolios.find(p => p.id === activePortfolioId);
     const breakdown = getPortfolioBreakdown();
@@ -64,6 +65,20 @@ export default function PortfolioSelector() {
     const cancelCreatePortfolio = () => {
         setShowCreateModal(false);
         setNewPortfolioName('');
+    };
+
+    const handleResetAll = () => {
+        setShowResetModal(true);
+    };
+
+    const confirmResetAll = () => {
+        clearAllPortfolios();
+        setShowResetModal(false);
+        setIsSidebarOpen(false);
+    };
+
+    const cancelResetAll = () => {
+        setShowResetModal(false);
     };
 
     const handleSaveEdit = (portfolioId) => {
@@ -199,12 +214,7 @@ export default function PortfolioSelector() {
 
                     {/* Reset Button (for testing) */}
                     <button
-                        onClick={() => {
-                            if (confirm('⚠️ This will delete ALL portfolios and show the welcome screen. Continue?')) {
-                                clearAllPortfolios();
-                                setIsSidebarOpen(false);
-                            }
-                        }}
+                        onClick={handleResetAll}
                         className="btn"
                         style={{
                             width: '100%',
@@ -634,6 +644,85 @@ export default function PortfolioSelector() {
                                 disabled={!newPortfolioName.trim()}
                             >
                                 Create
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Reset All Confirmation Modal */}
+            {showResetModal && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: 'rgba(0, 0, 0, 0.7)',
+                        backdropFilter: 'blur(8px)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 9999,
+                        animation: 'fadeIn 0.2s ease-out',
+                    }}
+                    onClick={cancelResetAll}
+                >
+                    <div
+                        className="glass-card"
+                        style={{
+                            maxWidth: '420px',
+                            width: '90%',
+                            padding: '32px',
+                            animation: 'slideUp 0.3s ease-out',
+                            border: '1px solid rgba(239, 68, 68, 0.3)',
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+                            <div
+                                style={{
+                                    width: '64px',
+                                    height: '64px',
+                                    margin: '0 auto 16px',
+                                    background: 'rgba(239, 68, 68, 0.1)',
+                                    border: '2px solid rgba(239, 68, 68, 0.3)',
+                                    borderRadius: '50%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '2rem',
+                                }}
+                            >
+                                ⚠️
+                            </div>
+                            <h3 style={{ marginBottom: '8px', color: 'var(--text-primary)' }}>
+                                Reset All Portfolios?
+                            </h3>
+                            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.5' }}>
+                                This will delete <strong style={{ color: 'var(--error)' }}>ALL {portfolios.length} portfolio{portfolios.length !== 1 ? 's' : ''}</strong> and return you to the welcome screen. This action cannot be undone.
+                            </p>
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '12px' }}>
+                            <button
+                                onClick={cancelResetAll}
+                                className="btn btn-secondary"
+                                style={{ flex: 1 }}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={confirmResetAll}
+                                className="btn"
+                                style={{
+                                    flex: 1,
+                                    background: 'var(--error)',
+                                    color: 'white',
+                                }}
+                            >
+                                Reset All
                             </button>
                         </div>
                     </div>

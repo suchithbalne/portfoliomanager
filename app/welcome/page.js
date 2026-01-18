@@ -12,24 +12,6 @@ export default function WelcomePage() {
                 <div className="animate-fade-in" style={{ maxWidth: '1200px', margin: '0 auto' }}>
                     {/* Hero Content */}
                     <div style={{ textAlign: 'center', marginBottom: '100px' }}>
-                        <div
-                            style={{
-                                width: '160px',
-                                height: '160px',
-                                margin: '0 auto 48px',
-                                background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(59, 130, 246, 0.15) 100%)',
-                                border: '3px solid var(--primary-purple)',
-                                borderRadius: '32px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontSize: '6rem',
-                                boxShadow: '0 20px 60px rgba(139, 92, 246, 0.3)',
-                                animation: 'float 3s ease-in-out infinite',
-                            }}
-                        >
-                            📊
-                        </div>
                         <h1 style={{
                             marginBottom: '32px',
                             fontSize: '4rem',

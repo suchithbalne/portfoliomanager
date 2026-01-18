@@ -532,3 +532,67 @@ tr:last-child td {
     height: 250px;
   }
 }
+
+/* Custom Tooltip */
+.info-icon {
+  cursor: help;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+  font-size: 10px;
+  margin-left: 6px;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.info-icon:hover {
+  background: var(--primary-purple);
+  color: white;
+}
+
+.custom-tooltip {
+  visibility: hidden;
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 220px;
+  background: rgba(15, 23, 42, 0.98);
+  border: 1px solid var(--glass-border);
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  color: #fff;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  z-index: 100;
+  margin-bottom: 10px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+  white-space: pre-wrap;
+  text-align: left;
+  font-weight: 500;
+}
+
+.info-icon:hover .custom-tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Tooltip Arrow */
+.custom-tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: rgba(15, 23, 42, 0.98) transparent transparent transparent;
+}

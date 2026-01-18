@@ -16,36 +16,48 @@ export default function RiskMetrics({ holdings, metrics }) {
             name: 'Portfolio Beta',
             value: (metrics.beta ?? 1.0).toFixed(2),
             description: 'Sensitivity to market (>1 is higher risk)',
+            recommendation: 'Target: 0.8 - 1.2',
+            info: 'Measures how much the portfolio moves vs the market.\n1.0 is market average.',
             color: metrics.beta > 1.2 ? 'var(--error)' : 'var(--primary-blue)',
         },
         {
             name: 'Sharpe Ratio',
             value: (metrics.sharpeRatio ?? 0).toFixed(2),
             description: 'Risk-adjusted return (>1 is good)',
+            recommendation: 'Target: > 1.0',
+            info: 'Returns earned in excess of risk-free rate per unit of volatility.\nHigher is better.',
             color: metrics.sharpeRatio > 1 ? 'var(--success)' : 'var(--warning)',
         },
         {
             name: 'Sortino Ratio',
             value: (metrics.sortinoRatio ?? 0).toFixed(2),
             description: 'Downside risk-adjusted return',
+            recommendation: 'Target: > 1.0',
+            info: 'Similar to Sharpe, but only penalizes downside volatility.\nFocuses on harmful risk.',
             color: metrics.sortinoRatio > 1 ? 'var(--success)' : 'var(--warning)',
         },
         {
             name: 'Treynor Ratio',
             value: (metrics.treynorRatio ?? 0).toFixed(2),
             description: 'Return per unit of systematic risk',
+            recommendation: 'Target: Higher is better',
+            info: 'Returns earned per unit of market risk (Beta).\nEfficiency of systematic risk.',
             color: 'var(--primary-purple)',
         },
         {
             name: 'VaR (95%)',
             value: metrics.var95 ? formatCurrency(metrics.var95) : '$0.00',
             description: 'Max expected 1-day loss (95% conf.)',
+            recommendation: 'Target: < 2% of Total',
+            info: 'Maximum likely loss in a day with 95% confidence.\nIndicator of tail risk.',
             color: 'var(--error)',
         },
         {
             name: 'Max Drawdown',
             value: (metrics.maxDrawdown ?? 0).toFixed(2) + '%',
             description: 'Largest peak-to-trough decline',
+            recommendation: 'Target: < 20%',
+            info: 'Maximum observed loss from a peak to a trough.\nHistoric deep risk.',
             color: 'var(--error)',
         },
     ];
@@ -178,11 +190,21 @@ export default function RiskMetrics({ holdings, metrics }) {
                             padding: '16px',
                             background: 'rgba(255, 255, 255, 0.02)',
                             borderRadius: 'var(--radius-md)',
-                            border: '1px solid rgba(255, 255, 255, 0.05)'
+                            border: '1px solid rgba(255, 255, 255, 0.05)',
+                            position: 'relative'
                         }}>
-                            <h4 style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginBottom: '4px' }}>{metric.name}</h4>
+                            <div className="flex justify-between items-start mb-1">
+                                <h4 style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginBottom: '4px' }}>{metric.name}</h4>
+                                <div className="info-icon">
+                                    ⓘ
+                                    <div className="custom-tooltip">{metric.info}</div>
+                                </div>
+                            </div>
                             <div style={{ fontSize: '1.25rem', fontWeight: '600', color: metric.color, marginBottom: '4px' }}>{metric.value}</div>
-                            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{metric.description}</p>
+                            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>{metric.description}</p>
+                            <p style={{ fontSize: '0.7rem', color: 'var(--primary-blue)', opacity: 0.9 }}>
+                                {metric.recommendation}
+                            </p>
                         </div>
                     ))}
                 </div>

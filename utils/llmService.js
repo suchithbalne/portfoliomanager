@@ -224,6 +224,7 @@ ${JSON.stringify(portfolioHoldings, null, 2)}
 
 **Portfolio Summary:**
 - Total Value: $${portfolioData.totalValue.toFixed(2)}
+- Total Holdings: ${portfolioData.holdings.length}
 - Total Return: ${portfolioData.totalReturn.toFixed(2)}%
 - Risk Score: ${portfolioData.risk.score.toFixed(0)}/100
 - Diversification Score: ${portfolioData.diversification.score.toFixed(0)}/100

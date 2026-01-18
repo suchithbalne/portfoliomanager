@@ -9,7 +9,6 @@ import PerformanceMetrics from './PerformanceMetrics';
 import DiversificationAnalysis from './DiversificationAnalysis';
 import RiskMetrics from './RiskMetrics';
 import TaxOptimization from './TaxOptimization';
-import DividendTracker from './DividendTracker';
 import AIRecommendations from './AIRecommendations';
 import * as calc from '../utils/portfolioCalculations';
 import * as advCalc from '../utils/advancedCalculations';
@@ -61,7 +60,6 @@ export default function Dashboard() {
         { id: 'diversification', label: 'Diversification', icon: '🎯' },
         { id: 'risk', label: 'Risk Analysis', icon: '⚠️' },
         { id: 'tax', label: 'Tax Optimization', icon: '💰' },
-        { id: 'dividends', label: 'Dividends', icon: '💵' },
         { id: 'ai', label: 'AI Recommendations', icon: '🤖' },
     ];
 
@@ -295,8 +293,6 @@ export default function Dashboard() {
                 {activeTab === 'risk' && <RiskMetrics holdings={holdings} metrics={metrics} />}
 
                 {activeTab === 'tax' && <TaxOptimization holdings={holdings} />}
-
-                {activeTab === 'dividends' && <DividendTracker holdings={holdings} />}
 
                 {activeTab === 'ai' && <AIRecommendations holdings={holdings} metrics={metrics} />}
             </div>

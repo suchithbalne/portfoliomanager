@@ -110,10 +110,34 @@ export default function DiversificationAnalysis({ holdings, metrics }) {
     const level = getDiversificationLevel(metrics.diversificationScore);
 
     const advancedStats = [
-        { title: 'HHI', value: (metrics.hhi ?? 0).toFixed(2), desc: 'Concentration (Lower is better)' },
-        { title: 'Effective Stocks', value: (metrics.effectiveStocks ?? 0).toFixed(1), desc: 'Equivalent equal-weight count' },
-        { title: 'Sector Ratio', value: (metrics.sectorRatio ?? 0).toFixed(2), desc: 'Sectors per stock' },
-        { title: 'Avg Correlation', value: (metrics.avgCorrelation ?? 0).toFixed(2), desc: 'Asset co-movement (0-1)' },
+        {
+            title: 'HHI',
+            value: (metrics.hhi ?? 0).toFixed(2),
+            desc: 'Concentration (Lower is better)',
+            target: 'Target: < 0.15',
+            info: 'Herfindahl-Hirschman Index.\n< 0.15 is diverse, > 0.25 is very concentrated.'
+        },
+        {
+            title: 'Effective Stocks',
+            value: (metrics.effectiveStocks ?? 0).toFixed(1),
+            desc: 'Equivalent equal-weight count',
+            target: 'Target: Closer to actual count',
+            info: 'The number of equal-sized positions that would provide the same diversification benefits.\nHigher is better.'
+        },
+        {
+            title: 'Sector Ratio',
+            value: (metrics.sectorRatio ?? 0).toFixed(2),
+            desc: 'Sectors per stock',
+            target: 'Target: > 0.2',
+            info: 'Ratio of unique sectors to total stocks.\nHigher indicates better cross-sector spread.'
+        },
+        {
+            title: 'Avg Correlation',
+            value: (metrics.avgCorrelation ?? 0).toFixed(2),
+            desc: 'Asset co-movement (0-1)',
+            target: 'Target: < 0.5',
+            info: 'How closely your assets move together.\nLower correlation improves diversification.'
+        },
     ];
 
     return (
@@ -171,11 +195,21 @@ export default function DiversificationAnalysis({ holdings, metrics }) {
                             padding: '16px',
                             background: 'rgba(255, 255, 255, 0.02)',
                             borderRadius: 'var(--radius-md)',
-                            border: '1px solid rgba(255, 255, 255, 0.05)'
+                            border: '1px solid rgba(255, 255, 255, 0.05)',
+                            position: 'relative'
                         }}>
-                            <h4 style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginBottom: '4px' }}>{stat.title}</h4>
+                            <div className="flex justify-between items-start mb-1">
+                                <h4 style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginBottom: '4px' }}>{stat.title}</h4>
+                                <div className="info-icon">
+                                    ⓘ
+                                    <div className="custom-tooltip">{stat.info}</div>
+                                </div>
+                            </div>
                             <div style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--primary-purple)', marginBottom: '4px' }}>{stat.value}</div>
-                            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{stat.desc}</p>
+                            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>{stat.desc}</p>
+                            <p style={{ fontSize: '0.7rem', color: 'var(--primary-blue)', opacity: 0.9 }}>
+                                {stat.target}
+                            </p>
                         </div>
                     ))}
                 </div>

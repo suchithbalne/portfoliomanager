@@ -239,16 +239,19 @@ export default function Dashboard() {
 
             {/* Tabs */}
             <div
-                className="dashboard-card animate-fade-in"
+                className="dashboard-card"
                 style={{
                     padding: '8px',
                     marginBottom: '24px',
-                    animationDelay: '0.2s',
                     display: 'flex',
                     flexDirection: 'row',
                     alignItems: 'center',
                     gap: '8px',
                     overflowX: 'auto',
+                    position: 'sticky',
+                    top: '0px',
+                    zIndex: 20,
+                    backdropFilter: 'blur(12px)',
                 }}
             >
                 {tabs.map(tab => (
@@ -262,6 +265,8 @@ export default function Dashboard() {
                             border: 'none',
                             padding: '12px 20px',
                             whiteSpace: 'nowrap',
+                            flex: 1,
+                            justifyContent: 'center',
                         }}
                     >
                         {tab.label}

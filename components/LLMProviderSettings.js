@@ -27,6 +27,36 @@ export default function LLMProviderSettings({ onClose }) {
     const [loadingModels, setLoadingModels] = useState(false);
 
     const providers = getAllProviders();
+    const CACHE_DURATION = 4 * 60 * 60 * 1000; // 4 hours
+
+    const getCachedModels = (providerId) => {
+        try {
+            const cacheKey = `llm_models_${providerId}`;
+            const cached = localStorage.getItem(cacheKey);
+            if (cached) {
+                const { timestamp, models } = JSON.parse(cached);
+                if (Date.now() - timestamp < CACHE_DURATION) {
+                    return models;
+                }
+            }
+        } catch (error) {
+            console.error('Error reading from cache:', error);
+        }
+        return null;
+    };
+
+    const saveCachedModels = (providerId, models) => {
+        try {
+            const cacheKey = `llm_models_${providerId}`;
+            const data = {
+                timestamp: Date.now(),
+                models
+            };
+            localStorage.setItem(cacheKey, JSON.stringify(data));
+        } catch (error) {
+            console.error('Error saving to cache:', error);
+        }
+    };
 
     useEffect(() => {
         loadConfig();
@@ -41,8 +71,14 @@ export default function LLMProviderSettings({ onClose }) {
         setSelectedModel(getProviderModel(activeId) || getProvider(activeId).defaultModel);
 
         // Initialize available models
-        const provider = getProvider(activeId);
-        setAvailableModels(provider.models);
+        // Check cache first
+        const cachedModels = getCachedModels(activeId);
+        if (cachedModels) {
+            setAvailableModels(cachedModels);
+        } else {
+            const provider = getProvider(activeId);
+            setAvailableModels(provider.models);
+        }
     };
 
     const handleProviderChange = async (providerId) => {
@@ -52,18 +88,34 @@ export default function LLMProviderSettings({ onClose }) {
         setTestResult(null);
         setHasChanges(true);
 
-        // Load models for the provider
         const provider = getProvider(providerId);
+
+        // Try cache first
+        const cachedModels = getCachedModels(providerId);
+        if (cachedModels) {
+            setAvailableModels(cachedModels);
+            // If explicit fetch is needed even with cache (optional), add logic here.
+            // But requirement implies cache is enough.
+            return;
+        }
+
+        // Fallback to static defaults
         setAvailableModels(provider.models);
 
         // If provider supports dynamic model fetching and has API key, fetch models
         if (provider.fetchModels && getProviderApiKey(providerId)) {
             setLoadingModels(true);
-            const dynamicModels = await provider.fetchModels(getProviderApiKey(providerId));
-            if (dynamicModels && dynamicModels.length > 0) {
-                setAvailableModels(dynamicModels);
+            try {
+                const dynamicModels = await provider.fetchModels(getProviderApiKey(providerId));
+                if (dynamicModels && dynamicModels.length > 0) {
+                    setAvailableModels(dynamicModels);
+                    saveCachedModels(providerId, dynamicModels);
+                }
+            } catch (error) {
+                console.error("Failed to fetch models:", error);
+            } finally {
+                setLoadingModels(false);
             }
-            setLoadingModels(false);
         }
     };
 

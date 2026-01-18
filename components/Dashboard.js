@@ -46,33 +46,42 @@ export default function Dashboard() {
 
     return (
         <div className="container" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
-            {/* Header */}
-            <div className="flex justify-between items-center mb-4 animate-fade-in">
-                <div style={{ flex: 1 }}>
-                    <h1 style={{ marginBottom: '8px' }}>Portfolio Dashboard</h1>
-                    <p style={{ color: 'var(--text-secondary)' }}>
-                        {holdings.length} holdings • Last updated: {new Date().toLocaleDateString()}
-                    </p>
+            {/* Header Section */}
+            <div className="animate-fade-in" style={{ marginBottom: '32px' }}>
+                {/* Portfolio Selector - Left Side */}
+                <div style={{ marginBottom: '24px', maxWidth: '300px' }}>
+                    <PortfolioSelector />
                 </div>
 
-                <div className="flex gap-2 items-center">
-                    <PortfolioSelector />
-                    <button onClick={clearAllPortfolios} className="btn btn-secondary">
-                        <svg
-                            width="20"
-                            height="20"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        >
-                            <polyline points="1 4 1 10 7 10" />
-                            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
-                        </svg>
-                        New Portfolio
-                    </button>
+                {/* Title and Actions - Centered Title */}
+                <div className="flex justify-between items-center">
+                    <div style={{ flex: 1 }}></div>
+
+                    <div className="text-center" style={{ flex: 2 }}>
+                        <h1 style={{ marginBottom: '8px' }}>Portfolio Dashboard</h1>
+                        <p style={{ color: 'var(--text-secondary)' }}>
+                            {holdings.length} holdings • Last updated: {new Date().toLocaleDateString()}
+                        </p>
+                    </div>
+
+                    <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
+                        <button onClick={clearAllPortfolios} className="btn btn-secondary">
+                            <svg
+                                width="20"
+                                height="20"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            >
+                                <polyline points="1 4 1 10 7 10" />
+                                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+                            </svg>
+                            New Portfolio
+                        </button>
+                    </div>
                 </div>
             </div>
 

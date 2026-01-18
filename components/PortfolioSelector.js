@@ -19,6 +19,7 @@ export default function PortfolioSelector() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [editName, setEditName] = useState('');
+    const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
     const activePortfolio = portfolios.find(p => p.id === activePortfolioId);
     const breakdown = getPortfolioBreakdown();
@@ -28,9 +29,18 @@ export default function PortfolioSelector() {
     const totalConsolidatedValue = breakdown.reduce((sum, p) => sum + p.totalValue, 0);
 
     const handleDelete = (portfolioId) => {
-        if (confirm('Are you sure you want to delete this portfolio? This action cannot be undone.')) {
-            deletePortfolio(portfolioId);
+        setDeleteConfirmId(portfolioId);
+    };
+
+    const confirmDelete = () => {
+        if (deleteConfirmId) {
+            deletePortfolio(deleteConfirmId);
+            setDeleteConfirmId(null);
         }
+    };
+
+    const cancelDelete = () => {
+        setDeleteConfirmId(null);
     };
 
     const handleSaveEdit = (portfolioId) => {
@@ -315,23 +325,58 @@ export default function PortfolioSelector() {
                                                             setEditingId(portfolio.id);
                                                             setEditName(portfolio.name);
                                                         }}
-                                                        className="btn btn-secondary"
-                                                        style={{ fontSize: '0.75rem', padding: '6px 12px', flex: 1 }}
+                                                        className="btn"
+                                                        title="Rename portfolio"
+                                                        style={{
+                                                            fontSize: '1rem',
+                                                            padding: '8px',
+                                                            minWidth: '36px',
+                                                            height: '36px',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            background: 'rgba(255, 255, 255, 0.05)',
+                                                            border: '1px solid var(--glass-border)',
+                                                            transition: 'all 0.2s ease',
+                                                        }}
+                                                        onMouseEnter={(e) => {
+                                                            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                                                            e.currentTarget.style.transform = 'translateY(-2px)';
+                                                        }}
+                                                        onMouseLeave={(e) => {
+                                                            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                                                            e.currentTarget.style.transform = 'translateY(0)';
+                                                        }}
                                                     >
-                                                        ✏️ Rename
+                                                        ✏️
                                                     </button>
                                                     <button
                                                         onClick={() => handleDelete(portfolio.id)}
                                                         className="btn"
+                                                        title="Delete portfolio"
                                                         style={{
-                                                            fontSize: '0.75rem',
-                                                            padding: '6px 12px',
-                                                            background: 'var(--error-bg)',
+                                                            fontSize: '1rem',
+                                                            padding: '8px',
+                                                            minWidth: '36px',
+                                                            height: '36px',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            background: 'rgba(239, 68, 68, 0.1)',
+                                                            border: '1px solid rgba(239, 68, 68, 0.3)',
                                                             color: 'var(--error)',
-                                                            flex: 1,
+                                                            transition: 'all 0.2s ease',
+                                                        }}
+                                                        onMouseEnter={(e) => {
+                                                            e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                                                            e.currentTarget.style.transform = 'translateY(-2px)';
+                                                        }}
+                                                        onMouseLeave={(e) => {
+                                                            e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                                                            e.currentTarget.style.transform = 'translateY(0)';
                                                         }}
                                                     >
-                                                        🗑️ Delete
+                                                        🗑️
                                                     </button>
                                                 </div>
                                             </>
@@ -344,10 +389,103 @@ export default function PortfolioSelector() {
                 </div>
             </div>
 
+            {/* Modern Delete Confirmation Modal */}
+            {deleteConfirmId && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: 'rgba(0, 0, 0, 0.7)',
+                        backdropFilter: 'blur(8px)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 9999,
+                        animation: 'fadeIn 0.2s ease-out',
+                    }}
+                    onClick={cancelDelete}
+                >
+                    <div
+                        className="glass-card"
+                        style={{
+                            maxWidth: '420px',
+                            width: '90%',
+                            padding: '32px',
+                            animation: 'slideUp 0.3s ease-out',
+                            border: '1px solid rgba(239, 68, 68, 0.3)',
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+                            <div
+                                style={{
+                                    width: '64px',
+                                    height: '64px',
+                                    margin: '0 auto 16px',
+                                    background: 'rgba(239, 68, 68, 0.1)',
+                                    border: '2px solid rgba(239, 68, 68, 0.3)',
+                                    borderRadius: '50%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '2rem',
+                                }}
+                            >
+                                ⚠️
+                            </div>
+                            <h3 style={{ marginBottom: '8px', color: 'var(--text-primary)' }}>
+                                Delete Portfolio?
+                            </h3>
+                            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.5' }}>
+                                Are you sure you want to delete{' '}
+                                <strong style={{ color: 'var(--text-primary)' }}>
+                                    {portfolios.find(p => p.id === deleteConfirmId)?.name}
+                                </strong>
+                                ? This action cannot be undone.
+                            </p>
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '12px' }}>
+                            <button
+                                onClick={cancelDelete}
+                                className="btn btn-secondary"
+                                style={{ flex: 1 }}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={confirmDelete}
+                                className="btn"
+                                style={{
+                                    flex: 1,
+                                    background: 'var(--error)',
+                                    color: 'white',
+                                }}
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <style jsx>{`
         @keyframes fadeIn {
           from { opacity: 0; }
           to { opacity: 1; }
+        }
+        @keyframes slideUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
       `}</style>
         </>

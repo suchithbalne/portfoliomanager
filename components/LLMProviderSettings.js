@@ -340,11 +340,38 @@ export default function LLMProviderSettings({ onClose }) {
                                 style={{ width: '100%' }}
                                 disabled={loadingModels}
                             >
-                                {availableModels.map(model => (
-                                    <option key={model.id} value={model.id}>
-                                        {model.name} - {model.description}
-                                    </option>
-                                ))}
+                                {(() => {
+                                    const getModelCategory = (model) => {
+                                        const id = model.id.toLowerCase();
+                                        if (id.includes('llama')) return 'Meta';
+                                        if (id.includes('mixtral') || id.includes('mistral')) return 'Mistral AI';
+                                        if (id.includes('gemma') || id.includes('gemini')) return 'Google';
+                                        if (id.includes('qwen')) return 'Alibaba Cloud';
+                                        if (id.includes('claude')) return 'Anthropic';
+                                        if (id.includes('gpt')) return 'OpenAI';
+                                        if (id.includes('deepseek')) return 'DeepSeek';
+                                        return 'Other';
+                                    };
+
+                                    const groupedModels = availableModels.reduce((acc, model) => {
+                                        const category = getModelCategory(model);
+                                        if (!acc[category]) acc[category] = [];
+                                        acc[category].push(model);
+                                        return acc;
+                                    }, {});
+
+                                    const sortedCategories = Object.keys(groupedModels).sort();
+
+                                    return sortedCategories.map(category => (
+                                        <optgroup key={category} label={category}>
+                                            {groupedModels[category].map(model => (
+                                                <option key={model.id} value={model.id}>
+                                                    {model.name} - {model.description}
+                                                </option>
+                                            ))}
+                                        </optgroup>
+                                    ));
+                                })()}
                             </select>
                             {currentProvider.fetchModels && (
                                 <p style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginTop: '4px' }}>

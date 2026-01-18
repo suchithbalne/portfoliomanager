@@ -14,9 +14,13 @@ export default function AIRecommendations({ holdings, metrics }) {
     const [analysis, setAnalysis] = useState(null);
     const [error, setError] = useState(null);
     const [showSettings, setShowSettings] = useState(false);
+    const [isCached, setIsCached] = useState(false);
+
+    const CACHE_KEY = 'ai_analysis_cache';
 
     useEffect(() => {
         checkApiKey();
+        loadCachedAnalysis();
     }, []);
 
     const checkApiKey = () => {
@@ -33,13 +37,56 @@ export default function AIRecommendations({ holdings, metrics }) {
         checkApiKey(); // Refresh API key status
     };
 
+    const generatePortfolioHash = (holdings) => {
+        return holdings.map(h => `${h.symbol}:${h.quantity}`).sort().join('|');
+    };
+
+    const loadCachedAnalysis = () => {
+        if (typeof window === 'undefined') return;
+
+        try {
+            const cached = localStorage.getItem(CACHE_KEY);
+            if (cached) {
+                const { analysis: cachedAnalysis, timestamp, portfolioHash } = JSON.parse(cached);
+                const currentHash = generatePortfolioHash(holdings);
+                const isValid = portfolioHash === currentHash && (Date.now() - timestamp) < 24 * 60 * 60 * 1000;
+
+                if (isValid) {
+                    setAnalysis(cachedAnalysis);
+                    setIsCached(true);
+                } else {
+                    localStorage.removeItem(CACHE_KEY);
+                }
+            }
+        } catch (error) {
+            console.error('Error loading cached analysis:', error);
+        }
+    };
+
+    const saveAnalysisToCache = (analysisText) => {
+        if (typeof window === 'undefined') return;
+
+        try {
+            const cache = {
+                analysis: analysisText,
+                timestamp: Date.now(),
+                portfolioHash: generatePortfolioHash(holdings)
+            };
+            localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
+        } catch (error) {
+            console.error('Error saving analysis to cache:', error);
+        }
+    };
+
     const handleAnalyze = async () => {
         setIsAnalyzing(true);
         setError(null);
+        setIsCached(false);
 
         try {
             const result = await analyzePortfolio(holdings, metrics);
             setAnalysis(result);
+            saveAnalysisToCache(result);
         } catch (err) {
             setError(err.message);
         } finally {

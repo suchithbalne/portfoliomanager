@@ -12,12 +12,17 @@ import TaxOptimization from './TaxOptimization';
 import DividendTracker from './DividendTracker';
 import AIRecommendations from './AIRecommendations';
 import * as calc from '../utils/portfolioCalculations';
+import * as advCalc from '../utils/advancedCalculations';
 
 export default function Dashboard() {
     const { holdings, activePortfolio, viewMode, clearAllPortfolios, getPortfolioBreakdown } = usePortfolio();
     const [activeTab, setActiveTab] = useState('overview');
 
-    // Calculate all metrics
+    // Calculate advanced metrics
+    const advRisk = advCalc.getComprehensiveRiskMetrics(holdings);
+    const advDiv = advCalc.getComprehensiveDiversificationMetrics(holdings);
+
+    // Calculate all metrics (combining basic and advanced)
     const metrics = {
         totalValue: calc.calculateTotalValue(holdings),
         totalCost: calc.calculateTotalCost(holdings),
@@ -26,12 +31,28 @@ export default function Dashboard() {
         bestPerformer: calc.getBestPerformer(holdings),
         worstPerformer: calc.getWorstPerformer(holdings),
         averageReturn: calc.calculateAverageReturn(holdings),
-        volatility: calc.calculateVolatility(holdings),
+
+        // Advanced Risk Metrics
+        volatility: advRisk.volatility,
+        riskScore: advRisk.riskScore,
+        beta: advRisk.beta,
+        sharpeRatio: advRisk.sharpeRatio,
+        sortinoRatio: advRisk.sortinoRatio,
+        treynorRatio: advRisk.treynorRatio,
+        var95: advRisk.var95_1day,
+        maxDrawdown: advRisk.maxDrawdown,
+
+        // Asset & Sector Allocation (keep basic calc for charts)
         assetAllocation: calc.calculateAssetAllocation(holdings),
         sectorAllocation: calc.calculateSectorAllocation(holdings),
         concentrationRisk: calc.calculateConcentrationRisk(holdings),
-        diversificationScore: calc.calculateDiversificationScore(holdings),
-        riskScore: calc.calculateRiskScore(holdings),
+
+        // Advanced Diversification Metrics
+        diversificationScore: advDiv.diversificationScore,
+        hhi: advDiv.hhi,
+        effectiveStocks: advDiv.effectiveStocks,
+        sectorRatio: advDiv.sectorRatio,
+        avgCorrelation: advDiv.avgCorrelation,
     };
 
     const tabs = [

@@ -109,6 +109,13 @@ export default function DiversificationAnalysis({ holdings, metrics }) {
 
     const level = getDiversificationLevel(metrics.diversificationScore);
 
+    const advancedStats = [
+        { title: 'HHI', value: (metrics.hhi ?? 0).toFixed(2), desc: 'Concentration (Lower is better)' },
+        { title: 'Effective Stocks', value: (metrics.effectiveStocks ?? 0).toFixed(1), desc: 'Equivalent equal-weight count' },
+        { title: 'Sector Ratio', value: (metrics.sectorRatio ?? 0).toFixed(2), desc: 'Sectors per stock' },
+        { title: 'Avg Correlation', value: (metrics.avgCorrelation ?? 0).toFixed(2), desc: 'Asset co-movement (0-1)' },
+    ];
+
     return (
         <div className="grid gap-3">
             {/* Diversification Score Card */}
@@ -152,6 +159,25 @@ export default function DiversificationAnalysis({ holdings, metrics }) {
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            {/* Advanced Metrics */}
+            <div className="glass-card p-4">
+                <h3 style={{ marginBottom: '16px' }}>Advanced Diversification Metrics</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {advancedStats.map((stat, i) => (
+                        <div key={i} style={{
+                            padding: '16px',
+                            background: 'rgba(255, 255, 255, 0.02)',
+                            borderRadius: 'var(--radius-md)',
+                            border: '1px solid rgba(255, 255, 255, 0.05)'
+                        }}>
+                            <h4 style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginBottom: '4px' }}>{stat.title}</h4>
+                            <div style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--primary-purple)', marginBottom: '4px' }}>{stat.value}</div>
+                            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{stat.desc}</p>
+                        </div>
+                    ))}
                 </div>
             </div>
 

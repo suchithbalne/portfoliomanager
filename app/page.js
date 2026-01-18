@@ -1,5 +1,7 @@
 'use client';
 
+// Trigger rebuild
+
 import { PortfolioProvider, usePortfolio } from '../context/PortfolioContext';
 import FileUpload from '../components/FileUpload';
 import Dashboard from '../components/Dashboard';

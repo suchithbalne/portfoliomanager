@@ -1,5 +1,7 @@
 'use client';
 
+import { formatCurrency } from '../utils/portfolioCalculations';
+
 export default function RiskMetrics({ holdings, metrics }) {
     const getRiskLevel = (score) => {
         if (score >= 70) return { text: 'High', color: 'var(--error)', bg: 'var(--error-bg)' };
@@ -9,24 +11,63 @@ export default function RiskMetrics({ holdings, metrics }) {
 
     const riskLevel = getRiskLevel(metrics.riskScore);
 
+    const advancedMetrics = [
+        {
+            name: 'Portfolio Beta',
+            value: (metrics.beta ?? 1.0).toFixed(2),
+            description: 'Sensitivity to market (>1 is higher risk)',
+            color: metrics.beta > 1.2 ? 'var(--error)' : 'var(--primary-blue)',
+        },
+        {
+            name: 'Sharpe Ratio',
+            value: (metrics.sharpeRatio ?? 0).toFixed(2),
+            description: 'Risk-adjusted return (>1 is good)',
+            color: metrics.sharpeRatio > 1 ? 'var(--success)' : 'var(--warning)',
+        },
+        {
+            name: 'Sortino Ratio',
+            value: (metrics.sortinoRatio ?? 0).toFixed(2),
+            description: 'Downside risk-adjusted return',
+            color: metrics.sortinoRatio > 1 ? 'var(--success)' : 'var(--warning)',
+        },
+        {
+            name: 'Treynor Ratio',
+            value: (metrics.treynorRatio ?? 0).toFixed(2),
+            description: 'Return per unit of systematic risk',
+            color: 'var(--primary-purple)',
+        },
+        {
+            name: 'VaR (95%)',
+            value: metrics.var95 ? formatCurrency(metrics.var95) : '$0.00',
+            description: 'Max expected 1-day loss (95% conf.)',
+            color: 'var(--error)',
+        },
+        {
+            name: 'Max Drawdown',
+            value: (metrics.maxDrawdown ?? 0).toFixed(2) + '%',
+            description: 'Largest peak-to-trough decline',
+            color: 'var(--error)',
+        },
+    ];
+
     const riskFactors = [
+        {
+            name: 'Portfolio Beta',
+            value: (metrics.beta ?? 1.0).toFixed(2),
+            description: 'Market risk factor',
+            score: Math.min(100, (metrics.beta / 2) * 100),
+        },
         {
             name: 'Portfolio Volatility',
             value: metrics.volatility.toFixed(2) + '%',
-            description: 'Standard deviation of returns',
+            description: 'Standard deviation',
             score: Math.min(100, (metrics.volatility / 50) * 100),
         },
         {
             name: 'Concentration Risk',
             value: metrics.concentrationRisk.toFixed(1) + '%',
-            description: 'Top 5 holdings as % of portfolio',
+            description: 'Top 5 holdings weight',
             score: Math.min(100, (metrics.concentrationRisk / 80) * 100),
-        },
-        {
-            name: 'Asset Type Risk',
-            value: Object.keys(metrics.assetAllocation).length,
-            description: 'Number of different asset types',
-            score: Math.max(0, 100 - (Object.keys(metrics.assetAllocation).length * 20)),
         },
     ];
 
@@ -125,6 +166,25 @@ export default function RiskMetrics({ holdings, metrics }) {
                             </p>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            {/* Advanced Risk Analytics */}
+            <div className="glass-card p-4">
+                <h3 style={{ marginBottom: '16px' }}>Advanced Risk Analytics</h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {advancedMetrics.map((metric, index) => (
+                        <div key={index} style={{
+                            padding: '16px',
+                            background: 'rgba(255, 255, 255, 0.02)',
+                            borderRadius: 'var(--radius-md)',
+                            border: '1px solid rgba(255, 255, 255, 0.05)'
+                        }}>
+                            <h4 style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginBottom: '4px' }}>{metric.name}</h4>
+                            <div style={{ fontSize: '1.25rem', fontWeight: '600', color: metric.color, marginBottom: '4px' }}>{metric.value}</div>
+                            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{metric.description}</p>
+                        </div>
+                    ))}
                 </div>
             </div>
 

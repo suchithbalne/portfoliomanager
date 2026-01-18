@@ -55,12 +55,12 @@ export default function Dashboard() {
     };
 
     const tabs = [
-        { id: 'overview', label: 'Overview', icon: '📊' },
-        { id: 'holdings', label: 'Holdings', icon: '📈' },
-        { id: 'diversification', label: 'Diversification', icon: '🎯' },
-        { id: 'risk', label: 'Risk Analysis', icon: '⚠️' },
-        { id: 'tax', label: 'Tax Optimization', icon: '💰' },
-        { id: 'ai', label: 'AI Recommendations', icon: '🤖' },
+        { id: 'overview', label: 'Overview' },
+        { id: 'holdings', label: 'Holdings' },
+        { id: 'diversification', label: 'Diversification' },
+        { id: 'risk', label: 'Risk Analysis' },
+        { id: 'tax', label: 'Tax Optimization' },
+        { id: 'ai', label: 'AI Recommendations' },
     ];
 
     return (
@@ -263,7 +263,6 @@ export default function Dashboard() {
                             whiteSpace: 'nowrap',
                         }}
                     >
-                        <span style={{ marginRight: '8px' }}>{tab.icon}</span>
                         {tab.label}
                     </button>
                 ))}

@@ -48,7 +48,7 @@ export const formatJSONAnalysis = (jsonString) => {
         // --- Widget 1: Portfolio Overview & Top Holdings ---
         if (analysis.portfolio_overview) {
             html += `<div class="analysis-widget">
-                <h2 class="widget-title">📊 Top Holdings</h2>
+                <h2 class="widget-title">Top Holdings</h2>
                 <div class="widget-content">
                     <div class="info-grid">
                          <div class="info-item">
@@ -77,7 +77,7 @@ export const formatJSONAnalysis = (jsonString) => {
         // --- Widget 2: Sector Allocation ---
         if (analysis.sector_allocation?.length > 0) {
             html += `<div class="analysis-widget">
-                <h2 class="widget-title">🎯 Sector Allocation</h2>
+                <h2 class="widget-title">Sector Allocation</h2>
                 <div class="widget-content sector-list">`;
             analysis.sector_allocation.forEach(sector => {
                 html += `<div class="sector-item">
@@ -97,7 +97,7 @@ export const formatJSONAnalysis = (jsonString) => {
         // --- Widget 3: Portfolio Scores ---
         if (analysis.scores) {
             html += `<div class="analysis-widget">
-                <h2 class="widget-title">📈 Portfolio Scores</h2>
+                <h2 class="widget-title">Portfolio Scores</h2>
                 <div class="widget-content scores-grid">`;
             Object.entries(analysis.scores).forEach(([key, value]) => {
                 const label = key.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
@@ -115,7 +115,7 @@ export const formatJSONAnalysis = (jsonString) => {
         // --- Widget 4: Fundamental Quality ---
         if (analysis.fundamental_quality?.length > 0) {
             html += `<div class="analysis-widget">
-                <h2 class="widget-title">💎 Fundamental Quality</h2>
+                <h2 class="widget-title">Fundamental Quality</h2>
                 <div class="widget-content quality-list">`;
             analysis.fundamental_quality.forEach(stock => {
                 html += `<div class="quality-item">
@@ -132,7 +132,7 @@ export const formatJSONAnalysis = (jsonString) => {
         // --- Widget 5: Risk Analysis ---
         if (analysis.risk_analysis) {
             html += `<div class="analysis-widget">
-                <h2 class="widget-title">⚠️ Risk Analysis</h2>
+                <h2 class="widget-title">Risk Analysis</h2>
                 <div class="widget-content risk-grid">
                     <div class="risk-item ${analysis.risk_analysis.single_stock_risk ? 'risk-warning' : 'risk-ok'}">
                         <span class="risk-icon">${analysis.risk_analysis.single_stock_risk ? '⚠️' : '✅'}</span>
@@ -153,7 +153,7 @@ export const formatJSONAnalysis = (jsonString) => {
         // --- Widget 6: Summary (Full Width or Large) ---
         if (analysis.retail_summary) {
             html += `<div class="analysis-widget full-width-widget">
-                <h2 class="widget-title">� Executive Summary</h2>
+                <h2 class="widget-title">Executive Summary</h2>
                 <div class="widget-content summary-grid">`;
 
             if (analysis.retail_summary.strengths?.length > 0) {
@@ -185,7 +185,7 @@ export const formatJSONAnalysis = (jsonString) => {
         // --- Widget 7: Recommendations (Full Width) ---
         if (analysis.recommendations) {
             html += `<div class="analysis-widget full-width-widget">
-                <h2 class="widget-title">� Actionable Recommendations</h2>
+                <h2 class="widget-title">Actionable Recommendations</h2>
                 <div class="widget-content recommendations-grid">`;
 
             if (analysis.recommendations.hold?.length > 0) {

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import * as calc from '../utils/portfolioCalculations';
+import { formatCurrency, getCurrencySymbol } from '../utils/markets/marketConfig';
 
 export default function HoldingsTable({ holdings, showAll = true }) {
     const [sortField, setSortField] = useState('marketValue');
@@ -124,21 +125,24 @@ export default function HoldingsTable({ holdings, showAll = true }) {
                                         <div style={{ color: 'var(--text-primary)' }}>{holding.name}</div>
                                         <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
                                             {holding.assetType} • {holding.sector}
+                                            {holding.exchange && ` • ${holding.exchange}`}
                                         </div>
                                     </div>
                                 </td>
                                 <td className="text-right">{calc.formatNumber(holding.quantity)}</td>
-                                <td className="text-right">{calc.formatCurrency(holding.currentPrice)}</td>
+                                <td className="text-right">
+                                    {holding.market ? formatCurrency(holding.currentPrice, holding.market) : calc.formatCurrency(holding.currentPrice)}
+                                </td>
                                 <td className="text-right">
                                     <strong style={{ color: 'var(--text-primary)' }}>
-                                        {calc.formatCurrency(holding.marketValue)}
+                                        {holding.market ? formatCurrency(holding.marketValue, holding.market) : calc.formatCurrency(holding.marketValue)}
                                     </strong>
                                 </td>
                                 <td
                                     className="text-right"
                                     style={{ color: holding.gainLoss >= 0 ? 'var(--success)' : 'var(--error)' }}
                                 >
-                                    {calc.formatCurrency(holding.gainLoss)}
+                                    {holding.market ? formatCurrency(holding.gainLoss, holding.market) : calc.formatCurrency(holding.gainLoss)}
                                 </td>
                                 <td className="text-right">
                                     <span

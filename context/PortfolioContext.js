@@ -146,11 +146,12 @@ export const PortfolioProvider = ({ children }) => {
     };
 
     // Add new portfolio
-    const addPortfolio = (name, accountType, holdings) => {
+    const addPortfolio = (name, accountType, holdings, market = 'US') => {
         const newPortfolio = {
             id: generatePortfolioId(),
             name,
             accountType,
+            market, // Market identifier (US, INDIA, etc.)
             createdAt: new Date().toISOString(),
             holdings
         };

@@ -1,5 +1,8 @@
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
+import { parseGrowwFile, isGrowwFile } from './markets/india/growwParser';
+import { enrichIndianHoldings } from './markets/india/indiaMetrics';
+import { MARKETS } from './markets/marketConfig';
 
 /**
  * Parse CSV file
@@ -25,7 +28,7 @@ export const parseCSV = (file) => {
 };
 
 /**
- * Parse Excel file
+ * Parse Excel file (US brokers)
  */
 export const parseExcel = (file) => {
     return new Promise((resolve, reject) => {
@@ -107,6 +110,8 @@ const normalizeData = (data) => {
                 assetType: determineAssetType(row.Type, row.Symbol),
                 sector: determineSector(row.Symbol, row.Description),
                 purchaseDate: new Date().toISOString().split('T')[0], // Default to today
+                market: MARKETS.US, // US market
+                exchange: 'NYSE', // Default exchange
             };
 
             // Calculate average cost basis if we have total cost and quantity
@@ -138,6 +143,8 @@ const normalizeData = (data) => {
                 assetType: detectField(row, ['assetType', 'Asset Type', 'asset_type', 'Type', 'type', 'Security Type', 'ASSET_TYPE']) || 'Stock',
                 sector: detectField(row, ['sector', 'Sector', 'Industry', 'industry', 'SECTOR']) || 'Unknown',
                 purchaseDate: detectField(row, ['purchaseDate', 'Purchase Date', 'purchase_date', 'Date Acquired', 'dateAcquired', 'PURCHASE_DATE']) || new Date().toISOString().split('T')[0],
+                market: MARKETS.US, // Default to US
+                exchange: 'NYSE',
             };
 
             // Calculate derived values
@@ -263,22 +270,32 @@ export const validatePortfolioData = (data) => {
 };
 
 /**
- * Main file parser function
+ * Main file parser function with market detection
  */
 export const parsePortfolioFile = async (file) => {
     const fileExtension = file.name.split('.').pop().toLowerCase();
 
     let data;
+    let market = MARKETS.US; // Default
 
-    if (fileExtension === 'csv') {
+    // Check if it's a Groww file (Indian market)
+    if ((fileExtension === 'xlsx' || fileExtension === 'xls') && isGrowwFile(file)) {
+        console.log('Detected Groww file - using Indian market parser');
+        data = await parseGrowwFile(file);
+        data = enrichIndianHoldings(data);
+        market = MARKETS.INDIA;
+    } else if (fileExtension === 'csv') {
         data = await parseCSV(file);
+        market = MARKETS.US;
     } else if (fileExtension === 'xlsx' || fileExtension === 'xls') {
+        // US broker Excel file
         data = await parseExcel(file);
+        market = MARKETS.US;
     } else {
         throw new Error('Unsupported file format. Please upload a CSV or Excel file.');
     }
 
     validatePortfolioData(data);
 
-    return data;
+    return { data, market };
 };

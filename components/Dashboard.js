@@ -13,6 +13,7 @@ import AIRecommendations from './AIRecommendations';
 import FileUpload from './FileUpload';
 import * as calc from '../utils/portfolioCalculations';
 import * as advCalc from '../utils/advancedCalculations';
+import { formatCurrency as formatMarketCurrency } from '../utils/markets/marketConfig';
 
 export default function Dashboard() {
     const { holdings, activePortfolio, viewMode, clearAllPortfolios, getPortfolioBreakdown, portfolios } = usePortfolio();
@@ -391,6 +392,20 @@ export default function Dashboard() {
                     <h1 style={{ marginBottom: '8px' }}>Portfolio Dashboard</h1>
                     <p style={{ color: 'var(--text-secondary)' }}>
                         {holdings.length} holdings • Last updated: {new Date().toLocaleDateString()}
+                        {activePortfolio?.market && activePortfolio.market !== 'US' && (
+                            <span style={{
+                                marginLeft: '12px',
+                                padding: '2px 8px',
+                                background: 'rgba(139, 92, 246, 0.2)',
+                                border: '1px solid var(--primary-purple)',
+                                borderRadius: '4px',
+                                fontSize: '0.75rem',
+                                fontWeight: '600',
+                                color: 'var(--primary-purple)'
+                            }}>
+                                {activePortfolio.market === 'INDIA' ? '🇮🇳 India' : activePortfolio.market}
+                            </span>
+                        )}
                     </p>
                 </div>
             </div>
@@ -426,9 +441,11 @@ export default function Dashboard() {
                     <p style={{ color: 'var(--text-tertiary)', fontSize: '0.875rem', marginBottom: '8px' }}>
                         Total Value
                     </p>
-                    <h2 style={{ marginBottom: '4px' }}>{calc.formatCurrency(metrics.totalValue)}</h2>
+                    <h2 style={{ marginBottom: '4px' }}>
+                        {activePortfolio?.market ? formatMarketCurrency(metrics.totalValue, activePortfolio.market) : calc.formatCurrency(metrics.totalValue)}
+                    </h2>
                     <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-                        Cost: {calc.formatCurrency(metrics.totalCost)}
+                        Cost: {activePortfolio?.market ? formatMarketCurrency(metrics.totalCost, activePortfolio.market) : calc.formatCurrency(metrics.totalCost)}
                     </p>
                 </div>
 
@@ -442,7 +459,7 @@ export default function Dashboard() {
                             color: metrics.totalGainLoss >= 0 ? 'var(--success)' : 'var(--error)',
                         }}
                     >
-                        {calc.formatCurrency(metrics.totalGainLoss)}
+                        {activePortfolio?.market ? formatMarketCurrency(metrics.totalGainLoss, activePortfolio.market) : calc.formatCurrency(metrics.totalGainLoss)}
                     </h2>
                     <span
                         className={`badge ${metrics.totalReturn >= 0 ? 'badge-success' : 'badge-error'}`}
@@ -513,7 +530,7 @@ export default function Dashboard() {
                                     </div>
                                     <div style={{ textAlign: 'right' }}>
                                         <div style={{ fontWeight: '600', color: 'var(--text-primary)' }}>
-                                            {calc.formatCurrency(portfolio.totalValue)}
+                                            {portfolio.market ? formatMarketCurrency(portfolio.totalValue, portfolio.market) : calc.formatCurrency(portfolio.totalValue)}
                                         </div>
                                         <div
                                             style={{
@@ -521,7 +538,7 @@ export default function Dashboard() {
                                                 color: portfolio.gainLoss >= 0 ? 'var(--success)' : 'var(--error)',
                                             }}
                                         >
-                                            {calc.formatCurrency(portfolio.gainLoss)} ({calc.formatPercentage(portfolio.gainLossPercent)})
+                                            {portfolio.market ? formatMarketCurrency(portfolio.gainLoss, portfolio.market) : calc.formatCurrency(portfolio.gainLoss)} ({calc.formatPercentage(portfolio.gainLossPercent)})
                                         </div>
                                     </div>
                                 </div>

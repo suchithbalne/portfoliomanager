@@ -36,8 +36,8 @@ export default function FileUpload() {
         setError(null);
 
         try {
-            const data = await parsePortfolioFile(file);
-            addPortfolio(portfolioName.trim(), accountType, data);
+            const { data, market } = await parsePortfolioFile(file);
+            addPortfolio(portfolioName.trim(), accountType, data, market);
 
             // Reset form
             setPortfolioName('');
@@ -84,7 +84,7 @@ export default function FileUpload() {
                     </h1>
                     <p style={{ fontSize: '1.125rem', color: 'var(--text-secondary)' }}>
                         {portfolios.length === 0
-                            ? 'Import your portfolio from Fidelity, Robinhood, or any broker to get started'
+                            ? 'Import your portfolio from Fidelity, Robinhood, Groww, or any broker to get started'
                             : 'Add another portfolio to track multiple accounts'}
                     </p>
                 </div>

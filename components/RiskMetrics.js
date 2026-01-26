@@ -1,8 +1,9 @@
 'use client';
 
 import { formatCurrency } from '../utils/portfolioCalculations';
+import { formatCurrency as formatMarketCurrency } from '../utils/markets/marketConfig';
 
-export default function RiskMetrics({ holdings, metrics }) {
+export default function RiskMetrics({ holdings, metrics, market }) {
     const getRiskLevel = (score) => {
         if (score >= 70) return { text: 'High', color: 'var(--error)', bg: 'var(--error-bg)' };
         if (score >= 40) return { text: 'Moderate', color: 'var(--warning)', bg: 'var(--warning-bg)' };
@@ -46,7 +47,7 @@ export default function RiskMetrics({ holdings, metrics }) {
         },
         {
             name: 'VaR (95%)',
-            value: metrics.var95 ? formatCurrency(metrics.var95) : '$0.00',
+            value: metrics.var95 ? (market ? formatMarketCurrency(metrics.var95, market) : formatCurrency(metrics.var95)) : (market ? formatMarketCurrency(0, market) : '$0.00'),
             description: 'Max expected 1-day loss (95% conf.)',
             recommendation: 'Target: < 2% of Total',
             info: 'Maximum likely loss in a day with 95% confidence.\nIndicator of tail risk.',

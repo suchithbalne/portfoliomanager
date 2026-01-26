@@ -1,8 +1,17 @@
 'use client';
 
+import { usePortfolio } from '../context/PortfolioContext';
 import * as calc from '../utils/portfolioCalculations';
+import { formatCurrency as formatMarketCurrency } from '../utils/markets/marketConfig';
 
 export default function DividendTracker({ holdings }) {
+    const { activePortfolio } = usePortfolio();
+    const market = activePortfolio?.market || 'US';
+
+    // Helper function to format currency based on market
+    const formatCurrency = (amount) => {
+        return market ? formatMarketCurrency(amount, market) : calc.formatCurrency(amount);
+    };
     const dividendHoldings = calc.identifyDividendHoldings(holdings);
 
     const totalAnnualDividends = dividendHoldings.reduce(
@@ -36,7 +45,7 @@ export default function DividendTracker({ holdings }) {
                         Annual Dividends
                     </p>
                     <h2 style={{ marginBottom: '4px', color: 'var(--success)' }}>
-                        {calc.formatCurrency(totalAnnualDividends)}
+                        {formatCurrency(totalAnnualDividends)}
                     </h2>
                     <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
                         Estimated
@@ -48,7 +57,7 @@ export default function DividendTracker({ holdings }) {
                         Monthly Income
                     </p>
                     <h2 style={{ marginBottom: '4px', color: 'var(--primary-blue)' }}>
-                        {calc.formatCurrency(monthlyDividend)}
+                        {formatCurrency(monthlyDividend)}
                     </h2>
                     <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
                         Average
@@ -106,7 +115,7 @@ export default function DividendTracker({ holdings }) {
                                                 <strong>{calc.formatCurrency(holding.estimatedAnnualDividend)}</strong>
                                             </td>
                                             <td className="text-right" style={{ color: 'var(--text-secondary)' }}>
-                                                {calc.formatCurrency(holding.estimatedAnnualDividend / 12)}
+                                                {formatCurrency(holding.estimatedAnnualDividend / 12)}
                                             </td>
                                         </tr>
                                     ))}
@@ -143,7 +152,7 @@ export default function DividendTracker({ holdings }) {
                                 Quarterly
                             </p>
                             <h2 style={{ color: 'var(--primary-purple)' }}>
-                                {calc.formatCurrency(totalAnnualDividends / 4)}
+                                {formatCurrency(totalAnnualDividends / 4)}
                             </h2>
                         </div>
 
@@ -160,7 +169,7 @@ export default function DividendTracker({ holdings }) {
                                 Semi-Annual
                             </p>
                             <h2 style={{ color: 'var(--primary-blue)' }}>
-                                {calc.formatCurrency(totalAnnualDividends / 2)}
+                                {formatCurrency(totalAnnualDividends / 2)}
                             </h2>
                         </div>
 
@@ -177,7 +186,7 @@ export default function DividendTracker({ holdings }) {
                                 Annual
                             </p>
                             <h2 style={{ color: 'var(--success)' }}>
-                                {calc.formatCurrency(totalAnnualDividends)}
+                                {formatCurrency(totalAnnualDividends)}
                             </h2>
                         </div>
                     </div>

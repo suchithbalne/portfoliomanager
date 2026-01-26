@@ -610,7 +610,7 @@ export default function Dashboard() {
                     <DiversificationAnalysis holdings={holdings} metrics={metrics} />
                 )}
 
-                {activeTab === 'risk' && <RiskMetrics holdings={holdings} metrics={metrics} />}
+                {activeTab === 'risk' && <RiskMetrics holdings={holdings} metrics={metrics} market={activePortfolio?.market} />}
 
                 {activeTab === 'tax' && <TaxOptimization holdings={holdings} />}
 

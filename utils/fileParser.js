@@ -1,6 +1,7 @@
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import { parseGrowwFile, isGrowwFile } from './markets/india/growwParser';
+import { parseUpstoxFile, isUpstoxFile } from './markets/india/upstoxParser';
 import { enrichIndianHoldings } from './markets/india/indiaMetrics';
 import { MARKETS } from './markets/marketConfig';
 
@@ -278,8 +279,15 @@ export const parsePortfolioFile = async (file) => {
     let data;
     let market = MARKETS.US; // Default
 
+    // Check if it's an Upstox file (Indian market)
+    if ((fileExtension === 'xlsx' || fileExtension === 'xls') && await isUpstoxFile(file)) {
+        console.log('Detected Upstox file - using Indian market parser');
+        data = await parseUpstoxFile(file);
+        data = enrichIndianHoldings(data);
+        market = MARKETS.INDIA;
+    }
     // Check if it's a Groww file (Indian market)
-    if ((fileExtension === 'xlsx' || fileExtension === 'xls') && isGrowwFile(file)) {
+    else if ((fileExtension === 'xlsx' || fileExtension === 'xls') && isGrowwFile(file)) {
         console.log('Detected Groww file - using Indian market parser');
         data = await parseGrowwFile(file);
         data = enrichIndianHoldings(data);

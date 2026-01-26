@@ -103,6 +103,9 @@ export default function HoldingsTable({ holdings, showAll = true }) {
                             <th onClick={() => handleSort('currentPrice')} className="text-right">
                                 Price <SortIcon field="currentPrice" />
                             </th>
+                            <th onClick={() => handleSort('totalCost')} className="text-right">
+                                Invested <SortIcon field="totalCost" />
+                            </th>
                             <th onClick={() => handleSort('marketValue')} className="text-right">
                                 Value <SortIcon field="marketValue" />
                             </th>
@@ -132,6 +135,9 @@ export default function HoldingsTable({ holdings, showAll = true }) {
                                 <td className="text-right">{calc.formatNumber(holding.quantity)}</td>
                                 <td className="text-right">
                                     {holding.market ? formatCurrency(holding.currentPrice, holding.market) : calc.formatCurrency(holding.currentPrice)}
+                                </td>
+                                <td className="text-right">
+                                    {holding.market ? formatCurrency(holding.totalCost || (holding.quantity * holding.costBasis), holding.market) : calc.formatCurrency(holding.totalCost || (holding.quantity * holding.costBasis))}
                                 </td>
                                 <td className="text-right">
                                     <strong style={{ color: 'var(--text-primary)' }}>

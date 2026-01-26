@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { usePortfolio } from '../context/PortfolioContext';
 import * as calc from '../utils/portfolioCalculations';
+import { formatCurrency as formatMarketCurrency } from '../utils/markets/marketConfig';
 
 export default function PortfolioSelector() {
     const {
@@ -397,7 +398,7 @@ export default function PortfolioSelector() {
                                                         fontWeight: '700',
                                                         color: 'var(--primary-purple)',
                                                     }}>
-                                                        {calc.formatCurrency(portfolioValue)}
+                                                        {portfolio.market ? formatMarketCurrency(portfolioValue, portfolio.market) : calc.formatCurrency(portfolioValue)}
                                                     </div>
                                                 </button>
 

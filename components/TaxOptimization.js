@@ -1,8 +1,17 @@
 'use client';
 
+import { usePortfolio } from '../context/PortfolioContext';
 import * as calc from '../utils/portfolioCalculations';
+import { formatCurrency as formatMarketCurrency } from '../utils/markets/marketConfig';
 
 export default function TaxOptimization({ holdings }) {
+    const { activePortfolio } = usePortfolio();
+    const market = activePortfolio?.market || 'US';
+
+    // Helper function to format currency based on market
+    const formatCurrency = (amount) => {
+        return market ? formatMarketCurrency(amount, market) : calc.formatCurrency(amount);
+    };
     const taxLossOpportunities = calc.identifyTaxLossOpportunities(holdings);
     const gainsByPeriod = calc.calculateGainsByHoldingPeriod(holdings);
 
@@ -23,7 +32,7 @@ export default function TaxOptimization({ holdings }) {
                         {taxLossOpportunities.length}
                     </h2>
                     <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-                        Potential savings: {calc.formatCurrency(totalPotentialSavings)}
+                        Potential savings: {formatCurrency(totalPotentialSavings)}
                     </p>
                 </div>
 
@@ -37,7 +46,7 @@ export default function TaxOptimization({ holdings }) {
                             color: gainsByPeriod.shortTerm.gains > 0 ? 'var(--success)' : 'var(--text-primary)',
                         }}
                     >
-                        {calc.formatCurrency(gainsByPeriod.shortTerm.gains)}
+                        {formatCurrency(gainsByPeriod.shortTerm.gains)}
                     </h2>
                     <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
                         {gainsByPeriod.shortTerm.count} holdings
@@ -54,7 +63,7 @@ export default function TaxOptimization({ holdings }) {
                             color: gainsByPeriod.longTerm.gains > 0 ? 'var(--success)' : 'var(--text-primary)',
                         }}
                     >
-                        {calc.formatCurrency(gainsByPeriod.longTerm.gains)}
+                        {formatCurrency(gainsByPeriod.longTerm.gains)}
                     </h2>
                     <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
                         {gainsByPeriod.longTerm.count} holdings
@@ -88,10 +97,10 @@ export default function TaxOptimization({ holdings }) {
                                         </td>
                                         <td style={{ color: 'var(--text-secondary)' }}>{holding.name}</td>
                                         <td className="text-right" style={{ color: 'var(--error)' }}>
-                                            {calc.formatCurrency(holding.gainLoss)}
+                                            {formatCurrency(holding.gainLoss)}
                                         </td>
                                         <td className="text-right" style={{ color: 'var(--success)' }}>
-                                            {calc.formatCurrency(holding.potentialTaxSavings)}
+                                            {formatCurrency(holding.potentialTaxSavings)}
                                         </td>
                                         <td className="text-right" style={{ color: 'var(--text-secondary)' }}>
                                             {new Date(holding.purchaseDate).toLocaleDateString()}
@@ -138,13 +147,13 @@ export default function TaxOptimization({ holdings }) {
                         <div className="flex justify-between mb-2">
                             <span style={{ color: 'var(--text-secondary)' }}>Gains:</span>
                             <strong style={{ color: 'var(--success)' }}>
-                                {calc.formatCurrency(gainsByPeriod.shortTerm.gains)}
+                                {formatCurrency(gainsByPeriod.shortTerm.gains)}
                             </strong>
                         </div>
                         <div className="flex justify-between mb-2">
                             <span style={{ color: 'var(--text-secondary)' }}>Losses:</span>
                             <strong style={{ color: 'var(--error)' }}>
-                                {calc.formatCurrency(gainsByPeriod.shortTerm.losses)}
+                                {formatCurrency(gainsByPeriod.shortTerm.losses)}
                             </strong>
                         </div>
                         <div
@@ -180,13 +189,13 @@ export default function TaxOptimization({ holdings }) {
                         <div className="flex justify-between mb-2">
                             <span style={{ color: 'var(--text-secondary)' }}>Gains:</span>
                             <strong style={{ color: 'var(--success)' }}>
-                                {calc.formatCurrency(gainsByPeriod.longTerm.gains)}
+                                {formatCurrency(gainsByPeriod.longTerm.gains)}
                             </strong>
                         </div>
                         <div className="flex justify-between mb-2">
                             <span style={{ color: 'var(--text-secondary)' }}>Losses:</span>
                             <strong style={{ color: 'var(--error)' }}>
-                                {calc.formatCurrency(gainsByPeriod.longTerm.losses)}
+                                {formatCurrency(gainsByPeriod.longTerm.losses)}
                             </strong>
                         </div>
                         <div

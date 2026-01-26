@@ -212,12 +212,16 @@ function parseNumeric(value) {
     if (value === null || value === undefined || value === '') return 0;
     if (typeof value === 'number') return value;
 
-    // Remove commas, +/- signs at the start, % signs, and whitespace
     let cleaned = String(value).trim();
     
     // Handle percentage format like "+36.04%" or "-3.17%"
     if (cleaned.includes('%')) {
+        // Preserve the negative sign, remove +, %, and whitespace
+        const isNegative = cleaned.startsWith('-');
         cleaned = cleaned.replace(/[+\-%\s]/g, '');
+        if (isNegative) {
+            cleaned = '-' + cleaned;
+        }
     } else {
         // Handle currency format like "+1,17,084.91" or "-5,295.30"
         cleaned = cleaned.replace(/[+,\s]/g, '');

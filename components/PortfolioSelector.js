@@ -33,6 +33,11 @@ export default function PortfolioSelector() {
     if (portfolios.length === 0) return null;
 
     const totalConsolidatedValue = breakdown.reduce((sum, p) => sum + p.totalValue, 0);
+    
+    // Determine if all portfolios are from the same market
+    const markets = [...new Set(portfolios.map(p => p.market).filter(Boolean))];
+    const isSingleMarket = markets.length === 1;
+    const consolidatedMarket = isSingleMarket ? markets[0] : null;
 
     const handleDelete = (portfolioId) => {
         setDeleteConfirmId(portfolioId);
@@ -295,7 +300,7 @@ export default function PortfolioSelector() {
                             WebkitBackgroundClip: 'text',
                             WebkitTextFillColor: 'transparent',
                         }}>
-                            {calc.formatCurrency(totalConsolidatedValue)}
+                            {consolidatedMarket ? formatMarketCurrency(totalConsolidatedValue, consolidatedMarket) : calc.formatCurrency(totalConsolidatedValue)}
                         </div>
                     </button>
 

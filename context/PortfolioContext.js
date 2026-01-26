@@ -219,6 +219,7 @@ export const PortfolioProvider = ({ children }) => {
                 id: portfolio.id,
                 name: portfolio.name,
                 accountType: portfolio.accountType,
+                market: portfolio.market,
                 totalValue,
                 totalCost,
                 gainLoss,

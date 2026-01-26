@@ -614,7 +614,7 @@ export default function Dashboard() {
 
                 {activeTab === 'tax' && <TaxOptimization holdings={holdings} />}
 
-                {activeTab === 'ai' && <AIRecommendations holdings={holdings} metrics={metrics} />}
+                {activeTab === 'ai' && <AIRecommendations holdings={holdings} metrics={metrics} market={activePortfolio?.market} />}
             </div>
         </div >
     );

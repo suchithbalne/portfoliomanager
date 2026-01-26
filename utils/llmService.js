@@ -204,7 +204,7 @@ const formatPortfolioForAnalysis = (holdings, metrics) => {
 /**
  * Create prompt for portfolio analysis
  */
-const createAnalysisPrompt = (portfolioData) => {
+const createAnalysisPrompt = (portfolioData, market = 'US') => {
     // Prepare portfolio data in required format
     const portfolioHoldings = portfolioData.holdings.map(h => ({
         ticker: h.symbol,
@@ -212,18 +212,40 @@ const createAnalysisPrompt = (portfolioData) => {
         avg_cost: h.costBasis
     }));
 
-    return `Analyze the following US stock portfolio for a retail investor.
+    // Market-specific configuration
+    const marketConfig = {
+        'INDIA': {
+            marketName: 'Indian stock',
+            currency: 'INR',
+            currencySymbol: '₹',
+            exchanges: 'NSE/BSE',
+            context: 'This is an INDIAN portfolio with stocks listed on NSE (National Stock Exchange) and BSE (Bombay Stock Exchange). Provide recommendations for Indian stocks only. Consider Indian market conditions, sectors, and regulatory environment.'
+        },
+        'US': {
+            marketName: 'US stock',
+            currency: 'USD',
+            currencySymbol: '$',
+            exchanges: 'NYSE/NASDAQ',
+            context: 'This is a US portfolio with stocks listed on NYSE and NASDAQ. Provide recommendations for US stocks only. Consider US market conditions and sectors.'
+        }
+    };
+
+    const config = marketConfig[market] || marketConfig['US'];
+
+    return `Analyze the following ${config.marketName} portfolio for a retail investor.
+
+**IMPORTANT CONTEXT:** ${config.context}
 
 **Investor Profile**
 - Horizon: long_term
 - Risk: moderate
 - Goal: growth
 
-**Portfolio (USD, US markets):**
+**Portfolio (${config.currency}, ${config.exchanges} markets):**
 ${JSON.stringify(portfolioHoldings, null, 2)}
 
 **Portfolio Summary:**
-- Total Value: $${portfolioData.totalValue.toFixed(2)}
+- Total Value: ${config.currencySymbol}${portfolioData.totalValue.toFixed(2)}
 - Total Holdings: ${portfolioData.holdings.length}
 - Total Return: ${portfolioData.totalReturn.toFixed(2)}%
 - Risk Score: ${portfolioData.risk.score.toFixed(0)}/100
@@ -295,7 +317,7 @@ Provide your analysis in the following JSON structure:
 /**
  * Call LLM API for portfolio analysis
  */
-export const analyzePortfolio = async (holdings, metrics, providerId = null) => {
+export const analyzePortfolio = async (holdings, metrics, providerId = null, market = 'US') => {
     const activeProviderId = providerId || getActiveProvider();
     const provider = getProvider(activeProviderId);
 
@@ -312,18 +334,31 @@ export const analyzePortfolio = async (holdings, metrics, providerId = null) => 
     const settings = getProviderSettings(activeProviderId);
 
     const portfolioData = formatPortfolioForAnalysis(holdings, metrics);
-    const prompt = createAnalysisPrompt(portfolioData);
+    const prompt = createAnalysisPrompt(portfolioData, market);
 
-    const messages = [
-        {
-            role: 'system',
-            content: `You are a US Equity Portfolio Analyst specializing in:
+    // Market-specific system message
+    const systemMessages = {
+        'INDIA': `You are an Indian Equity Portfolio Analyst specializing in:
+- Fundamental analysis of Indian stocks (NSE/BSE)
+- Portfolio diversification & concentration risk
+- Indian sector allocation (IT, Financial Services, Pharma, Auto, etc.)
+- Long-term retail investor optimization for Indian markets
+- Indian market regulations and tax considerations
+
+Provide recommendations ONLY for Indian stocks. Analyze objectively, conservatively, and professionally.`,
+        'US': `You are a US Equity Portfolio Analyst specializing in:
 - Fundamental analysis
 - Portfolio diversification & concentration risk
 - GICS sector allocation
 - Long-term retail investor optimization
 
-Analyze objectively, conservatively, and professionally.`,
+Provide recommendations ONLY for US stocks. Analyze objectively, conservatively, and professionally.`
+    };
+
+    const messages = [
+        {
+            role: 'system',
+            content: systemMessages[market] || systemMessages['US'],
         },
         {
             role: 'user',

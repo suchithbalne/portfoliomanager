@@ -7,7 +7,7 @@ import { formatMarkdownToHTML, getMarkdownStyles } from '../utils/markdownFormat
 import { formatJSONAnalysis, getJSONAnalysisStyles } from '../utils/jsonAnalysisFormatter';
 import LLMProviderSettings from './LLMProviderSettings';
 
-export default function AIRecommendations({ holdings, metrics }) {
+export default function AIRecommendations({ holdings, metrics, market }) {
     const [hasApiKey, setHasApiKey] = useState(false);
     const [activeProvider, setActiveProviderState] = useState(null);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -84,7 +84,7 @@ export default function AIRecommendations({ holdings, metrics }) {
         setIsCached(false);
 
         try {
-            const result = await analyzePortfolio(holdings, metrics);
+            const result = await analyzePortfolio(holdings, metrics, null, market);
             setAnalysis(result);
             saveAnalysisToCache(result);
         } catch (err) {
